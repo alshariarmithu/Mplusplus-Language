@@ -82,6 +82,8 @@ STRING      \"([^\"\\]|\\.)*\"
 \n              { /* ignore newlines, but yylineno tracks them */ }
 "//".*          { /* single-line comment */ }
 "/*"([^*]|\*+[^*/])*\*+"/"  { /* multi-line comment */ }
+[\r\n]+         { }
+
 
 .               { printf("ERROR: Invalid character '%s' at line %d\n", yytext, yylineno); }
 
