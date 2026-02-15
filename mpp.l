@@ -1,120 +1,92 @@
 %{
-#include <stdio.h>
+#include "mpp.tab.h"
 #include <string.h>
-
-int token_count = 0;
-
-void print_token(const char* token_type, const char* lexeme) {
-    token_count++;
-    printf("%-20s %-20s (Line: %d)\n", token_type, lexeme, yylineno);
-}
-
+#include <stdlib.h>
 %}
 
 %option yylineno
 %option noyywrap
 
 DIGIT       [0-9]
-LETTER      [a-zA-Z]
-IDENTIFIER  [a-zA-Z_][a-zA-Z0-9_]*
-INTEGER     {DIGIT}+
-FLOAT       {DIGIT}+\.{DIGIT}+
-CHAR        '.'
-STRING      \"([^\"\\]|\\.)*\"
+ID_PATTERN  [a-zA-Z_][a-zA-Z0-9_]*
+INT_PAT     {DIGIT}+
+FLOAT_PAT   {DIGIT}+\.{DIGIT}+
+CHAR_PAT    \'([^\\\n]|(\\.))\'
+STR_PAT     \"([^\"\\]|\\.)*\"
 
 %%
 
-"start"         { print_token("KEYWORD", yytext); }
-"finish"        { print_token("KEYWORD", yytext); }
-"when"          { print_token("KEYWORD", yytext); }
-"otherwise"     { print_token("KEYWORD", yytext); }
-"repeat"        { print_token("KEYWORD", yytext); }
-"loop"          { print_token("KEYWORD", yytext); }
-"doreturn"      { print_token("KEYWORD", yytext); }
-"show"          { print_token("KEYWORD", yytext); }
-"take"          { print_token("KEYWORD", yytext); }
-"number"        { print_token("KEYWORD", yytext); }
-"decimal"       { print_token("KEYWORD", yytext); }
-"letter"        { print_token("KEYWORD", yytext); }
-"yes"           { print_token("KEYWORD", yytext); }
-"no"            { print_token("KEYWORD", yytext); }
-"nothing"       { print_token("KEYWORD", yytext); }
-"stop"          { print_token("KEYWORD", yytext); }
-"skip"          { print_token("KEYWORD", yytext); }
-"define"        { print_token("KEYWORD", yytext); }
-"main"          { print_token("KEYWORD", yytext); }
+"start"         { return START; }
+"finish"        { return FINISH; }
+"when"          { return WHEN; }
+"otherwise"     { return OTHERWISE; }
+"repeat"        { return REPEAT; }
+"loop"          { return LOOP; }
+"doreturn"      { return DORETURN; }
+"show"          { return SHOW; }
+"take"          { return TAKE; }
+"number"        { return TYPE_NUMBER; }
+"decimal"       { return TYPE_DECIMAL; }
+"letter"        { return TYPE_LETTER; }
+"yes"           { return YES; }
+"no"            { return NO; }
+"nothing"       { return NOTHING; }
+"stop"          { return STOP; }
+"skip"          { return SKIP; }
+"define"        { return DEFINE; }
+"main"          { return MAIN; }
 
+"+"             { return PLUS; }
+"-"             { return MINUS; }
+"*"             { return MUL; }
+"/"             { return DIV; }
+"%"             { return MOD; }
+"=="            { return EQ; }
+"!="            { return NE; }
+"<="            { return LE; }
+">="            { return GE; }
+"<"             { return LT; }
+">"             { return GT; }
+"&&"            { return AND; }
+"||"            { return OR; }
+"!"             { return NOT; }
+"="             { return ASSIGN; }
+"("             { return LPAREN; }
+")"             { return RPAREN; }
+"["             { return LBRACKET; }
+"]"             { return RBRACKET; }
+";"             { return SEMICOLON; }
+","             { return COMMA; }
 
-"+"             { print_token("OPERATOR", yytext); }
-"-"             { print_token("OPERATOR", yytext); }
-"*"             { print_token("OPERATOR", yytext); }
-"/"             { print_token("OPERATOR", yytext); }
-"%"             { print_token("OPERATOR", yytext); }
-"=="            { print_token("OPERATOR", yytext); }
-"!="            { print_token("OPERATOR", yytext); }
-"<="            { print_token("OPERATOR", yytext); }
-">="            { print_token("OPERATOR", yytext); }
-"="             { print_token("OPERATOR", yytext); }
-"<"             { print_token("OPERATOR", yytext); }
-">"             { print_token("OPERATOR", yytext); }
-"&&"            { print_token("OPERATOR", yytext); }
-"||"            { print_token("OPERATOR", yytext); }
-"!"             { print_token("OPERATOR", yytext); }
-
-
-"("             { print_token("DELIMITER", yytext); }
-")"             { print_token("DELIMITER", yytext); }
-"["             { print_token("DELIMITER", yytext); }
-"]"             { print_token("DELIMITER", yytext); }
-";"             { print_token("DELIMITER", yytext); }
-","             { print_token("DELIMITER", yytext); }
-
-
-{INTEGER}       { print_token("INTEGER_LITERAL", yytext); }
-{FLOAT}         { print_token("FLOAT_LITERAL", yytext); }
-{CHAR}          { print_token("CHAR_LITERAL", yytext); }
-{STRING}        { print_token("STRING_LITERAL", yytext); }
-
-{IDENTIFIER}    { print_token("IDENTIFIER", yytext); }
-
-    /* Whitespace and Comments */
-[ \t]+          { /* ignore whitespace */ }
-\n              { /* ignore newlines, but yylineno tracks them */ }
-"//".*          { /* single-line comment */ }
-"/*"([^*]|\*+[^*/])*\*+"/"  { /* multi-line comment */ }
-[\r\n]+         { }
-
-
-.               { printf("ERROR: Invalid character '%s' at line %d\n", yytext, yylineno); }
-
-%%
-
-int main(int argc, char** argv) {
-    FILE *file;
-    
-    if (argc > 1) {
-        file = fopen(argv[1], "r");
-        if (!file) {
-            fprintf(stderr, "Error: Cannot open file '%s'\n", argv[1]);
-            return 1;
-        }
-        yyin = file;
-    } else {
-        printf("Enter M++ code (Ctrl+D or Ctrl+Z to end):\n");
-        yyin = stdin;
-    }
-    
-    printf("\n%-20s %-20s %s\n", "TOKEN TYPE", "LEXEME", "LINE");
-    printf("----------------------------------------------------\n");
-    
-    yylex();
-    
-    printf("----------------------------------------------------\n");
-    printf("Total tokens: %d\n", token_count);
-    
-    if (argc > 1) {
-        fclose(file);
-    }
-    
-    return 0;
+{FLOAT_PAT} {
+    yylval.floatval = atof(yytext);
+    return FLOAT_LITERAL;
 }
+
+{INT_PAT} {
+    yylval.intval = atoi(yytext);
+    return INTEGER_LITERAL;
+}
+
+{CHAR_PAT} {
+    yylval.strval = strdup(yytext);
+    return CHAR_LITERAL;
+}
+
+{STR_PAT} {
+    yylval.strval = strdup(yytext);
+    return STRING_LITERAL;
+}
+
+{ID_PATTERN} {
+    yylval.strval = strdup(yytext);
+    return IDENTIFIER;
+}
+
+[ \t\r\n]+      { /* ignore whitespace */ }
+"//".* { /* ignore comment */ }
+"/*"([^*]|\*+[^*/])*\*+"/" { /* ignore block comment */ }
+
+. { printf("Invalid character '%s' at line %d\n", yytext, yylineno); }
+
+%%

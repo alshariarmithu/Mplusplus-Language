@@ -1,11 +1,43 @@
-//TEST PROGRAM of M++ Language - > test.mpp
+// Test program for M++ Language
 
-// 1: Basic Variable Declaration
+// 1: Variable Declarations
+number x = 10;
+decimal pi = 3.14;
+letter ch = 'A';
+
+// 2: Assignments
+x = x + 5;
+pi = pi * 2;
+
+// 3: Show statements
+show(x);
+show(pi);
+show(ch);
+
+// 4: Arithmetic expressions
+number a = 7;
+number b = 3;
+number sum = a + b;
+number diff = a - b;
+number prod = a * b;
+number quot = a / b;
+number rem = a % b;
+
+show(sum);
+show(diff);
+show(prod);
+show(quot);
+show(rem);
+
+// 5: Using parentheses
+number result = (a + b) * (sum - diff);
+show(result);
+
 
 number x = 10;
 decimal pi = 3.14;
 letter ch = 'A';
-number arr[5];
+//number arr[5];
 
 // 2: If-Else Statements
 
@@ -50,102 +82,3 @@ define number factorial(number n) start
     finish
     doreturn n * factorial(n - 1);
 finish
-
-define nothing main() start
-    number num = 5;
-    number result;
-    
-    show("Enter a number: ");
-    take(num);
-    
-    result = factorial(num);
-    show("Factorial is: ");
-    show(result);
-    
-    when (num % 2 == 0) start
-        show("Even number");
-    finish
-    otherwise start
-        show("Odd number");
-    finish
-finish
-
-// 7: Nested Loops
-
-loop (number i = 1; i <= 3; i = i + 1) start
-    loop (number j = 1; j <= 3; j = j + 1) start
-        show(i * j);
-    finish
-finish
-
-// 8: Break and Continue
-
-number count = 0;
-repeat (count < 10) start
-    count = count + 1;
-    
-    when (count == 5) start
-        skip;  // continue
-    finish
-    
-    when (count == 8) start
-        stop;  // break
-    finish
-    
-    show(count);
-finish
-
-
-// 9: Boolean Values
-
-number flag = yes;
-when (flag == yes) start
-    show("Flag is true");
-finish
-
-flag = no;
-when (flag == no) start
-    show("Flag is false");
-finish
-
-
-// 10: Arithmetic Expressions
-
-number a = 10;
-number b = 20;
-number sum = a + b;
-number diff = a - b;
-number prod = a * b;
-number quot = b / a;
-number rem = b % a;
-
-when (a > 5 && b < 30) start
-    show("Both conditions true");
-finish
-
-when (a == 10 || b == 15) start
-    show("At least one condition true");
-finish
-
-// 11: Array Operations
-
-number numbers[5];
-loop (number i = 0; i < 5; i = i + 1) start
-    numbers[i] = i * 2;
-    show(numbers[i]);
-finish
-
-// 12: String Literals
-
-show("Welcome to M++");
-show("This is a multi-word string");
-letter name = 'J';
-show(name);
-
-/* 
-   This is a multi-line comment
-   Testing the lexer's ability to 
-   handle comments properly
-*/
-
-// Single line comment test

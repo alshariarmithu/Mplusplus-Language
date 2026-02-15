@@ -1,4 +1,13 @@
-main:
+all: mpp
+
+mpp: mpp.tab.c lex.yy.c
+	gcc mpp.tab.c lex.yy.c -o mpp -lfl
+
+mpp.tab.c mpp.tab.h: mpp.y
+	bison -d mpp.y
+
+lex.yy.c: mpp.l
 	flex mpp.l
-	gcc lex.yy.c -o a.out
-	./a.out test.mpp
+
+clean:
+	rm -f mpp mpp.tab.c mpp.tab.h lex.yy.c
