@@ -57,48 +57,29 @@ extern int yydebug;
     INTEGER_LITERAL = 258,         /* INTEGER_LITERAL  */
     FLOAT_LITERAL = 259,           /* FLOAT_LITERAL  */
     IDENTIFIER = 260,              /* IDENTIFIER  */
-    CHAR_LITERAL = 261,            /* CHAR_LITERAL  */
-    STRING_LITERAL = 262,          /* STRING_LITERAL  */
-    START = 263,                   /* START  */
-    FINISH = 264,                  /* FINISH  */
-    WHEN = 265,                    /* WHEN  */
-    OTHERWISE = 266,               /* OTHERWISE  */
-    REPEAT = 267,                  /* REPEAT  */
-    LOOP = 268,                    /* LOOP  */
-    DORETURN = 269,                /* DORETURN  */
-    SHOW = 270,                    /* SHOW  */
-    TAKE = 271,                    /* TAKE  */
-    TYPE_NUMBER = 272,             /* TYPE_NUMBER  */
-    TYPE_DECIMAL = 273,            /* TYPE_DECIMAL  */
-    TYPE_LETTER = 274,             /* TYPE_LETTER  */
-    YES = 275,                     /* YES  */
-    NO = 276,                      /* NO  */
-    NOTHING = 277,                 /* NOTHING  */
-    STOP = 278,                    /* STOP  */
-    SKIP = 279,                    /* SKIP  */
-    DEFINE = 280,                  /* DEFINE  */
-    MAIN = 281,                    /* MAIN  */
+    STRING_LITERAL = 261,          /* STRING_LITERAL  */
+    START = 262,                   /* START  */
+    FINISH = 263,                  /* FINISH  */
+    WHEN = 264,                    /* WHEN  */
+    OTHERWISE = 265,               /* OTHERWISE  */
+    REPEAT = 266,                  /* REPEAT  */
+    LOOP = 267,                    /* LOOP  */
+    SHOW = 268,                    /* SHOW  */
+    TYPE_NUMBER = 269,             /* TYPE_NUMBER  */
+    TYPE_DECIMAL = 270,            /* TYPE_DECIMAL  */
+    DEFINE = 271,                  /* DEFINE  */
+    ASSIGN = 272,                  /* ASSIGN  */
+    SEMICOLON = 273,               /* SEMICOLON  */
+    LPAREN = 274,                  /* LPAREN  */
+    RPAREN = 275,                  /* RPAREN  */
+    PLUS = 276,                    /* PLUS  */
+    MINUS = 277,                   /* MINUS  */
+    MUL = 278,                     /* MUL  */
+    DIV = 279,                     /* DIV  */
+    GT = 280,                      /* GT  */
+    LT = 281,                      /* LT  */
     EQ = 282,                      /* EQ  */
-    NE = 283,                      /* NE  */
-    LE = 284,                      /* LE  */
-    GE = 285,                      /* GE  */
-    LT = 286,                      /* LT  */
-    GT = 287,                      /* GT  */
-    AND = 288,                     /* AND  */
-    OR = 289,                      /* OR  */
-    NOT = 290,                     /* NOT  */
-    LBRACKET = 291,                /* LBRACKET  */
-    RBRACKET = 292,                /* RBRACKET  */
-    COMMA = 293,                   /* COMMA  */
-    PLUS = 294,                    /* PLUS  */
-    MINUS = 295,                   /* MINUS  */
-    MUL = 296,                     /* MUL  */
-    DIV = 297,                     /* DIV  */
-    MOD = 298,                     /* MOD  */
-    ASSIGN = 299,                  /* ASSIGN  */
-    LPAREN = 300,                  /* LPAREN  */
-    RPAREN = 301,                  /* RPAREN  */
-    SEMICOLON = 302                /* SEMICOLON  */
+    MAIN = 283                     /* MAIN  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -107,13 +88,13 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 11 "mpp.y"
+#line 122 "mpp.y"
 
-    int intval;
-    float floatval;
+    double dval;
     char *strval;
+    struct Node *node;
 
-#line 117 "mpp.tab.h"
+#line 98 "mpp.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
