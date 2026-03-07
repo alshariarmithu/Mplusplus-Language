@@ -1,11 +1,15 @@
 %{
 /*=============================================================
   mpp.l  -  Lexer for the M++ language
-  Fixes applied:
-    - Added missing "stop" and "skip" keywords
-    - Added "//" single-line comment support
-    - Ensured FLOAT is matched before INTEGER to avoid partial matches
-    - Handles all tokens declared in mpp.y
+  Features:
+    - All keywords: start finish when otherwise repeat loop
+      show take number decimal letter nothing define main
+      doreturn yes no stop skip
+    - Math built-in keywords: msin mcos mtan mlog msqrt mpow
+    - Operators: == != >= <= > < + - * / =
+    - Single-line comment support: //
+    - Float matched before integer to avoid partial match
+    - char literal stored via CHAR_LITERAL token
 =============================================================*/
 #include "mpp.tab.h"
 #include <string.h>
@@ -39,6 +43,13 @@
 "stop"              { return STOP; }
 "skip"              { return SKIP; }
 
+"msin"              { return MSIN; }
+"mcos"              { return MCOS; }
+"mtan"              { return MTAN; }
+"mlog"              { return MLOG; }
+"msqrt"             { return MSQRT; }
+"mpow"              { return MPOW; }
+
 "=="                { return EQ; }
 "!="                { return NEQ; }
 ">="                { return GTE; }
@@ -64,7 +75,7 @@
 
 [a-zA-Z_][a-zA-Z0-9_]*  { yylval.strval = strdup(yytext); return IDENTIFIER; }
 
-[ \t\n\r]           { /* skip whitespace */ }
+[ \t\n\r]           { /* skip */ }
 .                   { /* skip unknown characters */ }
 
 %%

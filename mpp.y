@@ -1,20 +1,31 @@
 %{
 /*=============================================================
   mpp.y  -  Parser + AST + Tree-Walking Interpreter for M++
-  Fixes applied:
-    1. Added NODE_RETURN, NODE_BREAK, NODE_CONTINUE node types
-    2. Added g_return_flag, g_break_flag, g_continue_flag globals
-       so doreturn/stop/skip properly unwind nested execute() calls
-    3. FLOAT_LITERAL added to expr rule
+
+  ADDITIONS over baseline:
+    - NODE_MATHFUNC node type for built-in math functions
+    - Built-in functions: msin, mcos, mtan, mlog, msqrt, mpow
+      * All trig functions accept values in RADIANS
+      * mlog  = log base-10
+      * msqrt = square root
+      * mpow(base, exp) = base raised to exp
+    - Grammar rules for single-arg and two-arg math calls
+    - NODE_MATHFUNC eval in eval()
+    - NODE_MATHFUNC no-op in execute() (expression-only node)
+
+  ORIGINAL FIXES retained:
+    1. NODE_RETURN / NODE_BREAK / NODE_CONTINUE  control flow
+    2. g_return_flag / g_break_flag / g_continue_flag globals
+    3. FLOAT_LITERAL in expr rule
     4. Function calls inside expressions (NODE_CALL in eval)
-    5. else-if chain: "otherwise when(...)" grammar rule added
-    6. Empty block "start finish" no longer crashes (NULL statement)
+    5. else-if chain "otherwise when(...)"
+    6. Empty block "start finish" no longer crashes
     7. NODE_STMT_LIST short-circuits on return/break/continue
     8. show() prints integers without trailing .0
-    9. Negative numbers supported via UMINUS precedence
-    10. NEQ / GTE / LTE operators added
-    11. char literal stored as ASCII value consistently
-    12. Better error messages with line numbers
+    9. Negative numbers via UMINUS precedence
+   10. NEQ / GTE / LTE operators
+   11. char literal stored as ASCII value
+   12. Better error messages with line numbers
 =============================================================*/
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,13 +38,13 @@ extern int yylineno;
 extern FILE *yyin;
 FILE *output_file;
 
-/* ── Control-flow flags ─────────────────────────────────── */
-int    g_return_flag   = 0;   /* doreturn was hit           */
-double g_return_val    = 0.0; /* value carried by doreturn  */
-int    g_break_flag    = 0;   /* stop was hit               */
-int    g_continue_flag = 0;   /* skip was hit               */
+/* -- Control-flow flags ----------------------------------- */
+int    g_return_flag   = 0;
+double g_return_val    = 0.0;
+int    g_break_flag    = 0;
+int    g_continue_flag = 0;
 
-/* ── AST node types ─────────────────────────────────────── */
+/* -- AST node types --------------------------------------- */
 typedef enum {
     NODE_STMT_LIST,
     NODE_ASSIGN,
@@ -46,51 +57,52 @@ typedef enum {
     NODE_NUM,
     NODE_OP,
     NODE_CALL,
+    NODE_MATHFUNC,    /* built-in math: msin mcos mtan mlog msqrt mpow */
     NODE_VAR_DECL,
     NODE_ARRAY_DECL,
     NODE_ARRAY_ASSIGN,
     NODE_ARRAY_REF,
-    NODE_RETURN,      /* doreturn */
-    NODE_BREAK,       /* stop     */
-    NODE_CONTINUE     /* skip     */
+    NODE_RETURN,
+    NODE_BREAK,
+    NODE_CONTINUE
 } NodeType;
 
 typedef struct Node {
     NodeType    type;
-    int         op;       /* operator character / code      */
-    char       *id;       /* identifier name                */
-    char       *str;      /* string / char literal text     */
-    double      val;      /* numeric literal value          */
+    int         op;
+    char       *id;
+    char       *str;
+    double      val;
     struct Node *left;
     struct Node *right;
     struct Node *cond;
     struct Node *step;
     struct Node *body;
     struct Node *else_part;
-    struct Node *next;    /* next statement in NODE_STMT_LIST */
-    struct Node *index;   /* array index expression         */
+    struct Node *next;
+    struct Node *index;
 } Node;
 
-/* ── Symbol table ───────────────────────────────────────── */
+/* -- Symbol table ----------------------------------------- */
 typedef struct {
     char   *name;
     double  val;
     double *array;
     int     size;
-    int     is_char;   /* 1 if declared as 'letter' */
+    int     is_char;
 } Symbol;
 
 #define MAX_SYMBOLS 1000
 Symbol var_table[MAX_SYMBOLS];
 int    var_count = 0;
 
-/* ── Function table ─────────────────────────────────────── */
+/* -- Function table --------------------------------------- */
 typedef struct { char *name; Node *body; } Function;
 #define MAX_FUNCS 100
 Function func_table[MAX_FUNCS];
 int      func_count = 0;
 
-/* ── Symbol helpers ─────────────────────────────────────── */
+/* -- Symbol helpers --------------------------------------- */
 static Symbol *find_symbol(const char *name) {
     for (int i = 0; i < var_count; i++)
         if (strcmp(var_table[i].name, name) == 0)
@@ -128,6 +140,17 @@ double get_var(const char *name) {
 }
 
 void init_array(const char *name, int size) {
+    /* If a scalar with the same name already exists, upgrade it to array */
+    Symbol *s = find_symbol(name);
+    if (s) {
+        /* Re-use the slot, allocate fresh array storage */
+        free(s->array);
+        s->array   = calloc(size, sizeof(double));
+        s->size    = size;
+        s->val     = 0;
+        s->is_char = 0;
+        return;
+    }
     if (var_count >= MAX_SYMBOLS) return;
     var_table[var_count].name    = strdup(name);
     var_table[var_count].val     = 0;
@@ -141,16 +164,19 @@ void set_array_val(const char *name, int idx, double val) {
     Symbol *s = find_symbol(name);
     if (s && s->array && idx >= 0 && idx < s->size)
         s->array[idx] = val;
+    else
+        fprintf(stderr, "Warning: array '%s' index %d out of range\n", name, idx);
 }
 
 double get_array_val(const char *name, int idx) {
     Symbol *s = find_symbol(name);
     if (s && s->array && idx >= 0 && idx < s->size)
         return s->array[idx];
+    fprintf(stderr, "Warning: array '%s' index %d out of range\n", name, idx);
     return 0.0;
 }
 
-/* ── Function helpers ───────────────────────────────────── */
+/* -- Function helpers ------------------------------------- */
 void register_func(const char *name, Node *body) {
     for (int i = 0; i < func_count; i++) {
         if (strcmp(func_table[i].name, name) == 0) {
@@ -170,7 +196,7 @@ Node *find_func_node(const char *name) {
     return NULL;
 }
 
-/* ── AST node constructor ───────────────────────────────── */
+/* -- AST node constructor --------------------------------- */
 Node *create_node(NodeType type) {
     Node *n = calloc(1, sizeof(Node));
     if (!n) { fprintf(stderr, "Out of memory\n"); exit(1); }
@@ -178,14 +204,17 @@ Node *create_node(NodeType type) {
     return n;
 }
 
-/* ── Forward declarations ───────────────────────────────── */
+/* -- Forward declarations --------------------------------- */
 double execute(Node *n);
 double eval(Node *n);
 
-/* ── Expression evaluator ───────────────────────────────── */
+/* ===========================================================
+   eval() - Expression evaluator
+   =========================================================== */
 double eval(Node *n) {
     if (!n) return 0.0;
     switch (n->type) {
+
         case NODE_NUM:
             return n->val;
 
@@ -195,8 +224,8 @@ double eval(Node *n) {
         case NODE_ARRAY_REF:
             return get_array_val(n->id, (int)eval(n->index));
 
+        /* -- Zero-argument user function call ----------- */
         case NODE_CALL: {
-            /* Save & reset control-flow flags for callee */
             int    saved_ret   = g_return_flag;
             double saved_rval  = g_return_val;
             int    saved_brk   = g_break_flag;
@@ -208,12 +237,39 @@ double eval(Node *n) {
             if (body) execute(body);
             double ret = g_return_val;
 
-            /* Restore caller state */
-            g_return_flag  = saved_ret;
-            g_return_val   = saved_rval;
-            g_break_flag   = saved_brk;
+            g_return_flag   = saved_ret;
+            g_return_val    = saved_rval;
+            g_break_flag    = saved_brk;
             g_continue_flag = saved_cont;
             return ret;
+        }
+
+        /* -- Built-in math function call --------------- */
+        case NODE_MATHFUNC: {
+            double arg1 = eval(n->left);
+            double arg2 = n->right ? eval(n->right) : 0.0;
+            const char *fname = n->id;
+
+            if (strcmp(fname, "msin")  == 0) return sin(arg1);
+            if (strcmp(fname, "mcos")  == 0) return cos(arg1);
+            if (strcmp(fname, "mtan")  == 0) return tan(arg1);
+            if (strcmp(fname, "mlog")  == 0) {
+                if (arg1 <= 0.0) {
+                    fprintf(stderr, "Warning: mlog(%g) undefined\n", arg1);
+                    return 0.0;
+                }
+                return log10(arg1);
+            }
+            if (strcmp(fname, "msqrt") == 0) {
+                if (arg1 < 0.0) {
+                    fprintf(stderr, "Warning: msqrt(%g) undefined\n", arg1);
+                    return 0.0;
+                }
+                return sqrt(arg1);
+            }
+            if (strcmp(fname, "mpow")  == 0) return pow(arg1, arg2);
+            fprintf(stderr, "Warning: unknown math function '%s'\n", fname);
+            return 0.0;
         }
 
         case NODE_OP: {
@@ -236,36 +292,33 @@ double eval(Node *n) {
     }
 }
 
-/* ── Statement executor ─────────────────────────────────── */
+/* ===========================================================
+   execute() - Statement executor
+   =========================================================== */
 double execute(Node *n) {
     if (!n) return 0.0;
 
-    /* Stop executing if a control-flow event is pending */
     if (g_return_flag || g_break_flag || g_continue_flag)
         return g_return_val;
 
     switch (n->type) {
 
-        /* ── Statement list ─────────────────────────────── */
         case NODE_STMT_LIST:
             execute(n->left);
             if (!g_return_flag && !g_break_flag && !g_continue_flag)
                 execute(n->next);
             break;
 
-        /* ── Variable declaration ───────────────────────── */
         case NODE_VAR_DECL:
             if (n->str) {
-                /* letter ch = 'A'; */
                 set_char_var(n->id, n->str[1]);
             } else if (n->left) {
                 set_var(n->id, eval(n->left));
             } else {
-                set_var(n->id, 0.0);   /* uninitialized */
+                set_var(n->id, 0.0);
             }
             break;
 
-        /* ── Assignment ─────────────────────────────────── */
         case NODE_ASSIGN:
             if (n->str) {
                 set_char_var(n->id, n->str[1]);
@@ -274,17 +327,14 @@ double execute(Node *n) {
             }
             break;
 
-        /* ── Array declaration ──────────────────────────── */
         case NODE_ARRAY_DECL:
             init_array(n->id, (int)n->val);
             break;
 
-        /* ── Array element assignment ───────────────────── */
         case NODE_ARRAY_ASSIGN:
             set_array_val(n->id, (int)eval(n->index), eval(n->left));
             break;
 
-        /* ── take (input) ───────────────────────────────── */
         case NODE_TAKE: {
             double v;
             printf("Enter value for %s: ", n->id);
@@ -294,10 +344,8 @@ double execute(Node *n) {
             break;
         }
 
-        /* ── show (output) ──────────────────────────────── */
         case NODE_SHOW:
             if (n->str) {
-                /* String literal: strip surrounding quotes */
                 int len = strlen(n->str);
                 char *s = malloc(len + 1);
                 strncpy(s, n->str + 1, len - 2);
@@ -307,7 +355,6 @@ double execute(Node *n) {
                 free(s);
             } else {
                 double v = eval(n->left);
-                /* Check if the variable is declared as 'letter' (char) */
                 if (n->left && n->left->type == NODE_VAR) {
                     Symbol *sym = find_symbol(n->left->id);
                     if (sym && sym->is_char) {
@@ -316,7 +363,6 @@ double execute(Node *n) {
                         break;
                     }
                 }
-                /* Print integer without .0, float with %g */
                 if (v == (double)(long long)v && fabs(v) < 1e15)
                     fprintf(output_file, "%lld\n", (long long)v);
                 else
@@ -325,7 +371,6 @@ double execute(Node *n) {
             }
             break;
 
-        /* ── when / otherwise (if / else) ──────────────── */
         case NODE_IF:
             if (eval(n->cond))
                 execute(n->body);
@@ -333,19 +378,17 @@ double execute(Node *n) {
                 execute(n->else_part);
             break;
 
-        /* ── loop (for) ─────────────────────────────────── */
         case NODE_LOOP:
-            execute(n->left);   /* initializer */
+            execute(n->left);   /* init */
             while (!g_return_flag && eval(n->cond)) {
                 execute(n->body);
                 if (g_break_flag)    { g_break_flag = 0;    break; }
-                if (g_continue_flag) { g_continue_flag = 0; /* fall to step */ }
+                if (g_continue_flag) { g_continue_flag = 0; }
                 if (g_return_flag)   break;
                 execute(n->step);
             }
             break;
 
-        /* ── repeat (while) ─────────────────────────────── */
         case NODE_REPEAT:
             while (!g_return_flag && eval(n->cond)) {
                 execute(n->body);
@@ -355,23 +398,19 @@ double execute(Node *n) {
             }
             break;
 
-        /* ── doreturn ───────────────────────────────────── */
         case NODE_RETURN:
             g_return_val  = n->left ? eval(n->left) : 0.0;
             g_return_flag = 1;
             break;
 
-        /* ── stop (break) ───────────────────────────────── */
         case NODE_BREAK:
             g_break_flag = 1;
             break;
 
-        /* ── skip (continue) ────────────────────────────── */
         case NODE_CONTINUE:
             g_continue_flag = 1;
             break;
 
-        /* ── function call as statement ─────────────────── */
         case NODE_CALL: {
             int    saved_ret  = g_return_flag;
             double saved_rval = g_return_val;
@@ -384,6 +423,11 @@ double execute(Node *n) {
             break;
         }
 
+        /* Math function used as statement (result discarded) */
+        case NODE_MATHFUNC:
+            eval(n);
+            break;
+
         default: break;
     }
     return g_return_val;
@@ -391,7 +435,7 @@ double execute(Node *n) {
 
 %}
 
-/* ── Bison union & token declarations ───────────────────── */
+/* -- Bison union & token declarations --------------------- */
 %union {
     double      dval;
     char       *strval;
@@ -407,11 +451,14 @@ double execute(Node *n) {
 %token ASSIGN SEMICOLON LPAREN RPAREN LBRACK RBRACK
 %token PLUS MINUS MUL DIV GT LT GTE LTE EQ NEQ COMMA
 
+/* -- Math built-in function tokens ----------------------- */
+%token MSIN MCOS MTAN MLOG MSQRT MPOW
+
 %type <node> expr statement statements block
 %type <node> declaration assignment show_stmt take_stmt
 %type <node> if_stmt loop_stmt repeat_stmt
 
-/* ── Operator precedence (low → high) ───────────────────── */
+/* -- Operator precedence (low -> high) --------------------- */
 %left  EQ NEQ
 %left  GT LT GTE LTE
 %left  PLUS MINUS
@@ -420,9 +467,9 @@ double execute(Node *n) {
 
 %%
 
-/* ══════════════════════════════════════════════════════════
+/* ==========================================================
    Grammar Rules
-   ══════════════════════════════════════════════════════════ */
+   ========================================================== */
 
 program
     : elements
@@ -457,7 +504,6 @@ type_spec
     | TYPE_LETTER
     ;
 
-/* A block may be empty: "start finish" is valid */
 block
     : START statements FINISH  { $$ = $2; }
     | START FINISH             { $$ = NULL; }
@@ -610,7 +656,6 @@ if_stmt
             n->else_part = $7;
             $$ = n;
         }
-    /* otherwise when (...) — else-if chain */
     | WHEN LPAREN expr RPAREN block OTHERWISE if_stmt
         {
             Node *n = create_node(NODE_IF);
@@ -643,6 +688,9 @@ repeat_stmt
         }
     ;
 
+/* ==========================================================
+   Expression rules
+   ========================================================== */
 expr
     : INTEGER_LITERAL
         { Node *n = create_node(NODE_NUM); n->val = $1; $$ = n; }
@@ -667,6 +715,55 @@ expr
         { Node *n = create_node(NODE_NUM); n->val = 1.0; $$ = n; }
     | NO
         { Node *n = create_node(NODE_NUM); n->val = 0.0; $$ = n; }
+
+    /* -- Single-argument math built-ins ------------------- */
+    | MSIN  LPAREN expr RPAREN
+        {
+            Node *n = create_node(NODE_MATHFUNC);
+            n->id   = strdup("msin");
+            n->left = $3;
+            $$ = n;
+        }
+    | MCOS  LPAREN expr RPAREN
+        {
+            Node *n = create_node(NODE_MATHFUNC);
+            n->id   = strdup("mcos");
+            n->left = $3;
+            $$ = n;
+        }
+    | MTAN  LPAREN expr RPAREN
+        {
+            Node *n = create_node(NODE_MATHFUNC);
+            n->id   = strdup("mtan");
+            n->left = $3;
+            $$ = n;
+        }
+    | MLOG  LPAREN expr RPAREN
+        {
+            Node *n = create_node(NODE_MATHFUNC);
+            n->id   = strdup("mlog");
+            n->left = $3;
+            $$ = n;
+        }
+    | MSQRT LPAREN expr RPAREN
+        {
+            Node *n = create_node(NODE_MATHFUNC);
+            n->id   = strdup("msqrt");
+            n->left = $3;
+            $$ = n;
+        }
+
+    /* -- Two-argument built-in: mpow(base, exp) ----------- */
+    | MPOW  LPAREN expr COMMA expr RPAREN
+        {
+            Node *n  = create_node(NODE_MATHFUNC);
+            n->id    = strdup("mpow");
+            n->left  = $3;    /* base */
+            n->right = $5;    /* exponent */
+            $$ = n;
+        }
+
+    /* -- Arithmetic & comparison operators ---------------- */
     | expr PLUS  expr  { Node *n=create_node(NODE_OP); n->op='+'; n->left=$1; n->right=$3; $$=n; }
     | expr MINUS expr  { Node *n=create_node(NODE_OP); n->op='-'; n->left=$1; n->right=$3; $$=n; }
     | expr MUL   expr  { Node *n=create_node(NODE_OP); n->op='*'; n->left=$1; n->right=$3; $$=n; }
@@ -692,12 +789,12 @@ expr
 
 %%
 
-/* ── Error handler ──────────────────────────────────────── */
+/* -- Error handler ---------------------------------------- */
 void yyerror(const char *s) {
     fprintf(stderr, "Syntax Error at line %d: %s\n", yylineno, s);
 }
 
-/* ── Entry point ────────────────────────────────────────── */
+/* -- Entry point ------------------------------------------ */
 int main(int argc, char *argv[]) {
     const char *in_file  = "input.mpp";
     const char *out_file = "output.txt";
@@ -723,7 +820,6 @@ int main(int argc, char *argv[]) {
     fclose(yyin);
     fclose(output_file);
 
-    /* Also mirror output to terminal */
     FILE *f = fopen(out_file, "r");
     if (f) {
         char line[512];

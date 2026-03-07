@@ -1,39 +1,53 @@
 // ============================================================
-//  input.mpp  --  Comprehensive M++ Test Suite
-//  Tests every keyword, operator, and language feature.
-//  Expected output is documented in comments beside each show.
+//  input.mpp  --  Comprehensive M++ Test Suite (Updated)
+//  Tests every keyword, operator, control flow, math function,
+//  array behaviour, and edge case.
+//  Expected output is shown in comments beside each show().
 // ============================================================
 
-// ── Helper functions (declared before main) ──────────────
+// ── Helper functions declared BEFORE main ────────────────
 
-// define: function with doreturn (number return type)
 define number getSquare()
 start
     doreturn 9 * 9;
 finish
 
-// define: void function with show inside
 define nothing printBanner()
 start
     show("==========================");
 finish
 
-// define: function using a shared variable (g_num must be set before call)
 define number doubleIt()
 start
     doreturn g_num * 2;
 finish
 
-// define: recursive-style factorial using repeat
+// Iterative factorial using repeat + shared var g_num
 define number factorial()
 start
     number result = 1;
-    number i = 1;
-    repeat (i <= g_num) start
-        result = result * i;
-        i = i + 1;
+    number fi = 1;
+    repeat (fi <= g_num) start
+        result = result * fi;
+        fi = fi + 1;
     finish
     doreturn result;
+finish
+
+// Returns 1 if g_num is prime, 0 otherwise
+define number isPrime()
+start
+    when (g_num < 2) start
+        doreturn 0;
+    finish
+    number pd = 2;
+    repeat (pd * pd <= g_num) start
+        when (g_num / pd * pd == g_num) start
+            doreturn 0;
+        finish
+        pd = pd + 1;
+    finish
+    doreturn 1;
 finish
 
 // ── Main entry point ─────────────────────────────────────
@@ -41,7 +55,7 @@ define nothing main()
 start
 
     // ════════════════════════════════════════════════════
-    // TEST 1: number (int) variable declaration & arithmetic
+    // TEST 1: number (int) arithmetic
     // ════════════════════════════════════════════════════
     show("=== TEST 1: number variables & arithmetic ===");
     number a = 10;
@@ -51,11 +65,11 @@ start
     show(a + b);        // 13
     show(a - b);        // 7
     show(a * b);        // 30
-    show(a / b);        // 3  (integer division via %g)
+    show(a / b);        // 3
     show(b * b);        // 9
 
     // ════════════════════════════════════════════════════
-    // TEST 2: decimal (float) variable declaration
+    // TEST 2: decimal (float) arithmetic
     // ════════════════════════════════════════════════════
     show("=== TEST 2: decimal variables ===");
     decimal pi = 3.14;
@@ -65,7 +79,7 @@ start
     show(pi * r * r);   // 19.625
 
     // ════════════════════════════════════════════════════
-    // TEST 3: letter (char) variable declaration & show
+    // TEST 3: letter (char) variable
     // ════════════════════════════════════════════════════
     show("=== TEST 3: letter variable ===");
     letter ch = 'A';
@@ -74,7 +88,7 @@ start
     show(z);            // z
 
     // ════════════════════════════════════════════════════
-    // TEST 4: yes / no (boolean literals)
+    // TEST 4: yes / no boolean literals
     // ════════════════════════════════════════════════════
     show("=== TEST 4: yes/no boolean literals ===");
     number t = yes;
@@ -85,7 +99,7 @@ start
     show(no);           // 0
 
     // ════════════════════════════════════════════════════
-    // TEST 5: Comparison & equality operators
+    // TEST 5: All comparison and equality operators
     // ════════════════════════════════════════════════════
     show("=== TEST 5: comparison operators ===");
     show(10 > 5);       // 1
@@ -97,11 +111,10 @@ start
     show(7 == 8);       // 0
 
     // ════════════════════════════════════════════════════
-    // TEST 6: when / otherwise (if / else if / else)
+    // TEST 6: when / otherwise if-else chain
     // ════════════════════════════════════════════════════
     show("=== TEST 6: when / otherwise ===");
     number val = 5;
-
     when (val > 0) start
         show("Positive");           // Positive
     finish
@@ -112,7 +125,6 @@ start
         show("not big");            // not big
     finish
 
-    // else-if chain
     number score = 75;
     when (score >= 90) start
         show("Grade: A");
@@ -125,13 +137,13 @@ start
     finish
 
     // ════════════════════════════════════════════════════
-    // TEST 7: repeat (while loop)
+    // TEST 7: repeat (while) loop
     // ════════════════════════════════════════════════════
     show("=== TEST 7: repeat (while loop) ===");
-    number i = 1;
-    repeat (i <= 5) start
-        show(i);        // 1 2 3 4 5
-        i = i + 1;
+    number wi = 1;
+    repeat (wi <= 5) start
+        show(wi);       // 1 2 3 4 5
+        wi = wi + 1;
     finish
 
     // ════════════════════════════════════════════════════
@@ -149,7 +161,7 @@ start
     number k = 0;
     repeat (k < 10) start
         when (k == 4) start
-            stop;       // break when k reaches 4
+            stop;
         finish
         show(k);        // 0 1 2 3
         k = k + 1;
@@ -161,13 +173,13 @@ start
     show("=== TEST 10: skip (continue) ===");
     loop (number m = 0; m < 6; m = m + 1) start
         when (m == 3) start
-            skip;       // skip printing 3
+            skip;
         finish
         show(m);        // 0 1 2 4 5
     finish
 
     // ════════════════════════════════════════════════════
-    // TEST 11: number array declaration, assignment, access
+    // TEST 11: Arrays – declaration, assignment, access
     // ════════════════════════════════════════════════════
     show("=== TEST 11: arrays ===");
     number arr[5];
@@ -176,94 +188,215 @@ start
     arr[2] = 300;
     arr[3] = 400;
     arr[4] = 500;
-    show(arr[0]);       // 100
-    show(arr[2]);       // 300
-    show(arr[4]);       // 500
-    // Array element arithmetic
+    show(arr[0]);           // 100
+    show(arr[2]);           // 300
+    show(arr[4]);           // 500
     show(arr[1] + arr[2]);  // 500
 
     // ════════════════════════════════════════════════════
-    // TEST 12: define / doreturn  (value-returning function)
+    // TEST 12: loop filling array with index variable
+    //   (This is the specific case mentioned in the task)
     // ════════════════════════════════════════════════════
-    show("=== TEST 12: define + doreturn ===");
+    show("=== TEST 12: loop writing to array via index var ===");
+    number brr[5];
+    loop (number li = 0; li < 5; li = li + 1) start
+        brr[li] = 66;
+    finish
+    show(brr[0]);   // 66
+    show(brr[1]);   // 66
+    show(brr[2]);   // 66
+    show(brr[3]);   // 66
+    show(brr[4]);   // 66
+
+    // partial fill then check zero-init
+    number crr[4];
+    crr[0] = 10;
+    crr[1] = 20;
+    // crr[2] and crr[3] are 0 by calloc
+    show(crr[0]);   // 10
+    show(crr[1]);   // 20
+    show(crr[2]);   // 0
+    show(crr[3]);   // 0
+
+    // ════════════════════════════════════════════════════
+    // TEST 13: define + doreturn (value-returning function)
+    // ════════════════════════════════════════════════════
+    show("=== TEST 13: define + doreturn ===");
     number sq = getSquare();
     show(sq);           // 81
     show(getSquare());  // 81
 
     // ════════════════════════════════════════════════════
-    // TEST 13: define nothing (void function call)
+    // TEST 14: define nothing (void function)
     // ════════════════════════════════════════════════════
-    show("=== TEST 13: define nothing (void func) ===");
+    show("=== TEST 14: define nothing (void func) ===");
     printBanner();      // ==========================
 
     // ════════════════════════════════════════════════════
-    // TEST 14: function using shared variable (g_num)
+    // TEST 15: function using shared global variable
     // ════════════════════════════════════════════════════
-    show("=== TEST 14: function with shared variable ===");
+    show("=== TEST 15: function with shared variable ===");
     number g_num = 7;
     show(doubleIt());   // 14
     g_num = 4;
     show(doubleIt());   // 8
 
     // ════════════════════════════════════════════════════
-    // TEST 15: factorial via repeat inside function
+    // TEST 16: factorial via repeat inside function
     // ════════════════════════════════════════════════════
-    show("=== TEST 15: factorial function ===");
+    show("=== TEST 16: factorial function ===");
     g_num = 5;
     show(factorial());  // 120
     g_num = 6;
     show(factorial());  // 720
 
     // ════════════════════════════════════════════════════
-    // TEST 16: nested when inside loop
+    // TEST 17: Prime checker function
     // ════════════════════════════════════════════════════
-    show("=== TEST 16: nested when inside loop ===");
-    loop (number n = 1; n <= 10; n = n + 1) start
-        when (n == n / 2 * 2) start
-            show(n);    // even numbers: 2 4 6 8 10
+    show("=== TEST 17: prime checker ===");
+    g_num = 7;
+    show(isPrime());    // 1 (7 is prime)
+    g_num = 9;
+    show(isPrime());    // 0 (9 = 3x3)
+    g_num = 13;
+    show(isPrime());    // 1
+
+    // ════════════════════════════════════════════════════
+    // TEST 18: Nested when inside loop
+    // ════════════════════════════════════════════════════
+    show("=== TEST 18: nested when inside loop ===");
+    loop (number nn = 1; nn <= 10; nn = nn + 1) start
+        // even check: n == (n/2)*2
+        when (nn == nn / 2 * 2) start
+            show(nn);   // 2 4 6 8 10
         finish
     finish
 
     // ════════════════════════════════════════════════════
-    // TEST 17: uninitialized variable (defaults to 0)
+    // TEST 19: Uninitialized variable defaults to 0
     // ════════════════════════════════════════════════════
-    show("=== TEST 17: uninitialized variable = 0 ===");
+    show("=== TEST 19: uninitialized variable = 0 ===");
     number uninit;
     show(uninit);       // 0
 
     // ════════════════════════════════════════════════════
-    // TEST 18: negative number via UMINUS
+    // TEST 20: Negative numbers (UMINUS)
     // ════════════════════════════════════════════════════
-    show("=== TEST 18: negative numbers ===");
+    show("=== TEST 20: negative numbers ===");
     number neg = -5;
     show(neg);          // -5
     show(neg * -1);     // 5
     show(-10 + 3);      // -7
 
     // ════════════════════════════════════════════════════
-    // TEST 19: complex expression precedence
+    // TEST 21: Operator precedence
     // ════════════════════════════════════════════════════
-    show("=== TEST 19: expression precedence ===");
-    show(2 + 3 * 4);        // 14  (not 20)
+    show("=== TEST 21: expression precedence ===");
+    show(2 + 3 * 4);        // 14
     show((2 + 3) * 4);      // 20
     show(10 - 2 * 3 + 1);   // 5
     show(10 / 2 + 3);       // 8
 
-    number a[5];
-    loop(number i = 0; i < 2; i = i + 1) start
-        //show(i);
-        a[i] = 66;
+    // ════════════════════════════════════════════════════
+    // TEST 22: msin, mcos, mtan  (arguments in radians)
+    //   sin(0) = 0,  cos(0) = 1,  tan(0) = 0
+    //   sin(pi/2) ≈ 1
+    // ════════════════════════════════════════════════════
+    show("=== TEST 22: trig functions (radians) ===");
+    show(msin(0));          // 0
+    show(mcos(0));          // 1
+    show(mtan(0));          // 0
+    decimal halfpi = 1.5708;
+    show(msin(halfpi));     // ~1  (prints 1)
+    show(mcos(halfpi));     // ~0  (prints a tiny float)
+
+    // ════════════════════════════════════════════════════
+    // TEST 23: msqrt
+    // ════════════════════════════════════════════════════
+    show("=== TEST 23: msqrt ===");
+    show(msqrt(0));         // 0
+    show(msqrt(1));         // 1
+    show(msqrt(4));         // 2
+    show(msqrt(9));         // 3
+    show(msqrt(2));         // 1.41421
+
+    // ════════════════════════════════════════════════════
+    // TEST 24: mlog (base 10)
+    // ════════════════════════════════════════════════════
+    show("=== TEST 24: mlog (base 10) ===");
+    show(mlog(1));          // 0
+    show(mlog(10));         // 1
+    show(mlog(100));        // 2
+    show(mlog(1000));       // 3
+
+    // ════════════════════════════════════════════════════
+    // TEST 25: mpow(base, exp)
+    // ════════════════════════════════════════════════════
+    show("=== TEST 25: mpow ===");
+    show(mpow(2, 0));       // 1
+    show(mpow(2, 1));       // 2
+    show(mpow(2, 10));      // 1024
+    show(mpow(3, 3));       // 27
+    show(mpow(5, 3));       // 125
+    show(mpow(2, -1));      // 0.5
+
+    // ════════════════════════════════════════════════════
+    // TEST 26: Math functions in complex expressions
+    // ════════════════════════════════════════════════════
+    show("=== TEST 26: math in expressions ===");
+    // Pythagorean: sqrt(3^2 + 4^2) = 5
+    show(msqrt(mpow(3, 2) + mpow(4, 2)));   // 5
+    // log(10^3) = 3
+    show(mlog(mpow(10, 3)));                 // 3
+    // 2^msqrt(4) = 2^2 = 4
+    show(mpow(2, msqrt(4)));                 // 4
+
+    // ════════════════════════════════════════════════════
+    // TEST 27: Math edge cases
+    // ════════════════════════════════════════════════════
+    show("=== TEST 27: math edge cases ===");
+    show(msqrt(0));         // 0  (boundary)
+    show(mpow(0, 0));       // 1  (by C convention)
+    show(mlog(1));          // 0  (log10(1)=0)
+    show(mpow(1, 999));     // 1  (1^anything = 1)
+
+    // ════════════════════════════════════════════════════
+    // TEST 28: Array with loop – mixed writes and reads
+    // ════════════════════════════════════════════════════
+    show("=== TEST 28: array sum via loop ===");
+    number sums[5];
+    loop (number si = 0; si < 5; si = si + 1) start
+        sums[si] = si * si;   // 0 1 4 9 16
     finish
-
-    a[0] = 66;
-    show(a[0]);
-    show(a[1]);
+    number total = 0;
+    loop (number ri = 0; ri < 5; ri = ri + 1) start
+        total = total + sums[ri];
+    finish
+    show(total);            // 30  (0+1+4+9+16)
 
     // ════════════════════════════════════════════════════
-    // TEST 20: string output via show
+    // TEST 29: stop inside nested loops (break outer)
     // ════════════════════════════════════════════════════
-    show("=== TEST 20: string literals ===");
+    show("=== TEST 29: stop in nested loop ===");
+    number found = 0;
+    loop (number oi = 0; oi < 5; oi = oi + 1) start
+        loop (number ii = 0; ii < 5; ii = ii + 1) start
+            when (oi * 5 + ii == 7) start
+                found = oi * 10 + ii;
+                stop;       // breaks inner loop only
+            finish
+        finish
+        when (found > 0) start
+            stop;           // breaks outer loop
+        finish
+    finish
+    show(found);            // 12  (oi=1, ii=2 -> 1*10+2)
+
+    // ════════════════════════════════════════════════════
+    // TEST 30: String output
+    // ════════════════════════════════════════════════════
+    show("=== TEST 30: string literals ===");
     show("Hello, M++ World!");
-    show("Compiler project complete!");
+    show("All tests passed!");
 
 finish

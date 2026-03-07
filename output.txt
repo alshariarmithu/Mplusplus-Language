@@ -1,75 +1,10 @@
-=== TEST 1: number variables & arithmetic ===
-10
-3
-13
-7
-30
-3.33333
-9
-=== TEST 2: decimal variables ===
-3.14
-2.5
-19.625
-=== TEST 3: letter variable ===
-A
-z
-=== TEST 4: yes/no boolean literals ===
-1
-0
-1
-0
-=== TEST 5: comparison operators ===
-1
-0
-1
-0
-1
-1
-0
-=== TEST 6: when / otherwise ===
-Positive
-not big
-Grade: C
-=== TEST 7: repeat (while loop) ===
-1
-2
-3
-4
-5
-=== TEST 8: loop (for loop) ===
+Voter
 0
 1
 2
 3
 4
-=== TEST 9: stop (break) ===
 0
-1
-2
-3
-=== TEST 10: skip (continue) ===
-0
-1
-2
-4
-5
-=== TEST 11: arrays ===
-100
-300
-500
-500
-=== TEST 12: define + doreturn ===
-81
-81
-=== TEST 13: define nothing (void func) ===
-==========================
-=== TEST 14: function with shared variable ===
-14
-8
-=== TEST 15: factorial function ===
-120
-720
-=== TEST 16: nested when inside loop ===
 1
 2
 3
@@ -79,20 +14,30 @@ Grade: C
 7
 8
 9
-10
-=== TEST 17: uninitialized variable = 0 ===
+1
+2
+3
+2
+4
+6
+3
+6
+9
+1
+2
+3
+4
+6
+7
+Flag is true
+Flag is false
+Quotient is: 
+2
 0
-=== TEST 18: negative numbers ===
--5
-5
--7
-=== TEST 19: expression precedence ===
-14
-20
-5
+2
+4
+6
 8
-0
-0
-=== TEST 20: string literals ===
-Hello, M++ World!
-Compiler project complete!
+Welcome to M++
+This is a multi-word string
+J

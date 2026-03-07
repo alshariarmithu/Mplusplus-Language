@@ -1,7 +1,7 @@
 all: mpp
 
 mpp: mpp.tab.c lex.yy.c
-	gcc mpp.tab.c lex.yy.c -o mpp
+	gcc mpp.tab.c lex.yy.c -o mpp -lm
 
 mpp.tab.c mpp.tab.h: mpp.y
 	bison -d mpp.y

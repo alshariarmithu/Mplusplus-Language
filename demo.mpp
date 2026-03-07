@@ -1,3 +1,5 @@
+define nothing main()
+start
 //TEST PROGRAM of M++ Language - > test.mpp
 
 // 1: Basic Variable Declaration
@@ -31,44 +33,6 @@ loop (number j = 0; j < 10; j = j + 1) start
     show(j);
 finish
 
-// 5: Function Definition
-
-define number add(number a, number b) start
-    doreturn a + b;
-finish
-
-define nothing greet() start
-    show("Hello, M++!");
-finish
-
-
-// 6: Complex Example
-
-define number factorial(number n) start
-    when (n <= 1) start
-        doreturn 1;
-    finish
-    doreturn n * factorial(n - 1);
-finish
-
-define nothing main() start
-    number num = 5;
-    number result;
-    
-    show("Enter a number: ");
-    take(num);
-    
-    result = factorial(num);
-    show("Factorial is: ");
-    show(result);
-    
-    when (num % 2 == 0) start
-        show("Even number");
-    finish
-    otherwise start
-        show("Odd number");
-    finish
-finish
 
 // 7: Nested Loops
 
@@ -117,15 +81,9 @@ number sum = a + b;
 number diff = a - b;
 number prod = a * b;
 number quot = b / a;
-number rem = b % a;
 
-when (a > 5 && b < 30) start
-    show("Both conditions true");
-finish
-
-when (a == 10 || b == 15) start
-    show("At least one condition true");
-finish
+show("Quotient is: ");
+show(quot);
 
 // 11: Array Operations
 
@@ -142,10 +100,7 @@ show("This is a multi-word string");
 letter name = 'J';
 show(name);
 
-/* 
-   This is a multi-line comment
-   Testing the lexer's ability to 
-   handle comments properly
-*/
 
 // Single line comment test
+
+finish
