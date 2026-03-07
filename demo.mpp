@@ -82,8 +82,13 @@ number diff = a - b;
 number prod = a * b;
 number quot = b / a;
 
-show("Quotient is: ");
-show(quot);
+when (a > 5 && b < 30) start
+    show("Both conditions true");
+finish
+
+when (a == 10 || b == 15) start
+    show("At least one condition true");
+finish
 
 // 11: Array Operations
 
@@ -100,6 +105,11 @@ show("This is a multi-word string");
 letter name = 'J';
 show(name);
 
+/* 
+   This is a multi-line comment
+   Testing the lexer's ability to 
+   handle comments properly
+*/
 
 // Single line comment test
 

@@ -101,7 +101,12 @@ extern int yydebug;
     MLOG = 302,                    /* MLOG  */
     MSQRT = 303,                   /* MSQRT  */
     MPOW = 304,                    /* MPOW  */
-    UMINUS = 305                   /* UMINUS  */
+    BAND = 305,                    /* BAND  */
+    BOR = 306,                     /* BOR  */
+    MOD = 307,                     /* MOD  */
+    LAND = 308,                    /* LAND  */
+    LOR = 309,                     /* LOR  */
+    UMINUS = 310                   /* UMINUS  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -110,13 +115,13 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 439 "mpp.y"
+#line 444 "mpp.y"
 
     double      dval;
     char       *strval;
     struct Node *node;
 
-#line 120 "mpp.tab.h"
+#line 125 "mpp.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

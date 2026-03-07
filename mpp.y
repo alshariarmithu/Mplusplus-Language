@@ -286,6 +286,11 @@ double eval(Node *n) {
                 case 'N': return l != r ? 1.0 : 0.0;   /* != */
                 case 'G': return l >= r ? 1.0 : 0.0;   /* >= */
                 case 'L': return l <= r ? 1.0 : 0.0;   /* <= */
+                case '&': return (double)((long long)l & (long long)r);   /* bitwise AND */
+                case '|': return (double)((long long)l | (long long)r);   /* bitwise OR  */
+                case '%': return ((long long)r != 0) ? (double)((long long)l % (long long)r) : 0.0; /* MOD */
+                case 'A': return (l != 0.0 && r != 0.0) ? 1.0 : 0.0;  /* && */
+                case 'O': return (l != 0.0 || r != 0.0) ? 1.0 : 0.0;  /* || */
             }
         }
         default: return 0.0;
@@ -454,15 +459,26 @@ double execute(Node *n) {
 /* -- Math built-in function tokens ----------------------- */
 %token MSIN MCOS MTAN MLOG MSQRT MPOW
 
+/* -- Bitwise and modulo tokens --------------------------- */
+%token BAND BOR MOD
+
+/* -- Logical AND / OR tokens ----------------------------- */
+%token LAND LOR
+
 %type <node> expr statement statements block
 %type <node> declaration assignment show_stmt take_stmt
 %type <node> if_stmt loop_stmt repeat_stmt
 
 /* -- Operator precedence (low -> high) --------------------- */
+%left  LOR
+%left  LAND
+%left  BOR
+%left  BAND
 %left  EQ NEQ
 %left  GT LT GTE LTE
 %left  PLUS MINUS
 %left  MUL DIV
+%left  MOD
 %right UMINUS
 
 %%
@@ -774,6 +790,11 @@ expr
     | expr LTE   expr  { Node *n=create_node(NODE_OP); n->op='L'; n->left=$1; n->right=$3; $$=n; }
     | expr EQ    expr  { Node *n=create_node(NODE_OP); n->op='E'; n->left=$1; n->right=$3; $$=n; }
     | expr NEQ   expr  { Node *n=create_node(NODE_OP); n->op='N'; n->left=$1; n->right=$3; $$=n; }
+    | expr BAND  expr  { Node *n=create_node(NODE_OP); n->op='&'; n->left=$1; n->right=$3; $$=n; }
+    | expr BOR   expr  { Node *n=create_node(NODE_OP); n->op='|'; n->left=$1; n->right=$3; $$=n; }
+    | expr MOD   expr  { Node *n=create_node(NODE_OP); n->op='%'; n->left=$1; n->right=$3; $$=n; }
+    | expr LAND  expr  { Node *n=create_node(NODE_OP); n->op='A'; n->left=$1; n->right=$3; $$=n; }
+    | expr LOR   expr  { Node *n=create_node(NODE_OP); n->op='O'; n->left=$1; n->right=$3; $$=n; }
     | MINUS expr %prec UMINUS
         {
             Node *zero = create_node(NODE_NUM); zero->val = 0.0;

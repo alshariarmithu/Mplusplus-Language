@@ -22,6 +22,7 @@
 %%
 
 "//"[^\n]*          { /* skip single-line comments */ }
+"/*"([^*]|\*+[^*/])*\*+"/"  { /* skip multi-line comments */ }
 
 "start"             { return START; }
 "finish"            { return FINISH; }
@@ -67,6 +68,11 @@
 "]"                 { return RBRACK; }
 ";"                 { return SEMICOLON; }
 ","                 { return COMMA; }
+"&&"                { return LAND; }
+"||"                { return LOR; }
+"&"                 { return BAND; }
+"|"                 { return BOR; }
+"%"                 { return MOD; }
 
 [0-9]+\.[0-9]+      { yylval.dval = atof(yytext); return FLOAT_LITERAL; }
 [0-9]+              { yylval.dval = atof(yytext); return INTEGER_LITERAL; }
