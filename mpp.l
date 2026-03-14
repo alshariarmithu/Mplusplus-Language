@@ -1,19 +1,9 @@
 %{
-/*=============================================================
-  mpp.l  -  Lexer for the M++ language
-  Features:
-    - All keywords: start finish when otherwise repeat loop
-      show take number decimal letter nothing define main
-      doreturn yes no stop skip
-    - Math built-in keywords: msin mcos mtan mlog msqrt mpow
-    - Operators: == != >= <= > < + - * / =
-    - Single-line comment support: //
-    - Float matched before integer to avoid partial match
-    - char literal stored via CHAR_LITERAL token
-=============================================================*/
-#include "mpp.tab.h"
+
 #include <string.h>
 #include <stdlib.h>
+#include "mpp.tab.h"
+
 %}
 
 %option noyywrap
@@ -21,7 +11,7 @@
 
 %%
 
-"//"[^\n]*          { /* skip single-line comments */ }
+"//"[^\n]*	    { /* skip single-line comments */ }
 "/*"([^*]|\*+[^*/])*\*+"/"  { /* skip multi-line comments */ }
 
 "start"             { return START; }
@@ -50,6 +40,20 @@
 "mlog"              { return MLOG; }
 "msqrt"             { return MSQRT; }
 "mpow"              { return MPOW; }
+
+"stack"             { return STACK; }
+"spush"             { return SPUSH; }
+"spop"              { return SPOP; }
+"speek"             { return SPEEK; }
+"sisempty"          { return SISEMPTY; }
+"ssize"             { return SSIZE; }
+
+"queue"             { return QUEUE; }
+"qenqueue"          { return QENQUEUE; }
+"qdequeue"          { return QDEQUEUE; }
+"qpeek"             { return QPEEK; }
+"qisempty"          { return QISEMPTY; }
+"qsize"             { return QSIZE; }
 
 "=="                { return EQ; }
 "!="                { return NEQ; }
@@ -81,7 +85,7 @@
 
 [a-zA-Z_][a-zA-Z0-9_]*  { yylval.strval = strdup(yytext); return IDENTIFIER; }
 
-[ \t\n\r]           { /* skip */ }
-.                   { /* skip unknown characters */ }
+[ \t\n\r]           { /* Skiping */ }
+.                   { /* Skiping unknown characters */ }
 
 %%

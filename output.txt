@@ -145,3 +145,67 @@ Grade: C
 === TEST 30: string literals ===
 Hello, M++ World!
 All tests passed!
+=== TEST 31: stack basic operations ===
+1
+3
+0
+30
+3
+30
+2
+1
+10
+1
+=== TEST 32: stack LIFO / reverse ===
+5
+4
+3
+2
+1
+=== TEST 33: stack spop in expression ===
+-4
+1
+=== TEST 34: stack in conditions ===
+stack not empty
+top is 42
+stack is empty
+=== TEST 35: queue basic operations ===
+1
+3
+0
+100
+3
+100
+2
+1
+300
+1
+=== TEST 36: queue FIFO order ===
+1
+2
+3
+4
+5
+=== TEST 37: queue qdequeue in expression ===
+10
+1
+=== TEST 38: queue in conditions ===
+queue not empty
+front is 99
+queue is empty
+=== TEST 39: stack-to-queue transfer ===
+5
+4
+3
+2
+1
+=== TEST 40: ssize and speek in expressions ===
+20
+7
+top > 5
+0
+=== TEST 41: qsize and qpeek in expressions ===
+10
+4
+front < 5
+1

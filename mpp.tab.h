@@ -106,7 +106,19 @@ extern int yydebug;
     MOD = 307,                     /* MOD  */
     LAND = 308,                    /* LAND  */
     LOR = 309,                     /* LOR  */
-    UMINUS = 310                   /* UMINUS  */
+    STACK = 310,                   /* STACK  */
+    SPUSH = 311,                   /* SPUSH  */
+    SPOP = 312,                    /* SPOP  */
+    SPEEK = 313,                   /* SPEEK  */
+    SISEMPTY = 314,                /* SISEMPTY  */
+    SSIZE = 315,                   /* SSIZE  */
+    QUEUE = 316,                   /* QUEUE  */
+    QENQUEUE = 317,                /* QENQUEUE  */
+    QDEQUEUE = 318,                /* QDEQUEUE  */
+    QPEEK = 319,                   /* QPEEK  */
+    QISEMPTY = 320,                /* QISEMPTY  */
+    QSIZE = 321,                   /* QSIZE  */
+    UMINUS = 322                   /* UMINUS  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -115,13 +127,13 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 444 "mpp.y"
+#line 600 "mpp.y"
 
     double      dval;
     char       *strval;
     struct Node *node;
 
-#line 125 "mpp.tab.h"
+#line 137 "mpp.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
