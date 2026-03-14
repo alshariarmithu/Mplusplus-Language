@@ -1,5 +1,7 @@
 // Test program for M++ Language
 
+define nothing main()
+start
 // 1: Variable Declarations
 number x = 10;
 decimal pi = 3.14;
@@ -18,8 +20,15 @@ show(ch);
 number a = 7;
 number b = 3;
 number sum = a + b;
+show(sum);
 number diff = a - b;
+show(diff);
 number prod = a * b;
+show(prod);
 number quot = a / b;
+show(quot);
 number rem = a % b;
+show(rem);
+
+finish
 

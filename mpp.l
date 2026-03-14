@@ -11,7 +11,7 @@
 
 %%
 
-"//"[^\]*       {/* Skiping Single Line Comment*/}
+"//"[^\n]*	    { /* skip single-line comments */ }
 "/*"([^*]|\*+[^*/])*\*+"/"  { /* skip multi-line comments */ }
 
 "start"             { return START; }
@@ -64,7 +64,7 @@
 "|"                 { return BOR; }
 "%"                 { return MOD; }
 
-[0-9]+\.[0-9]+      { yyval.dval = atof(yytext); return FLOAT_LITERAL; }
+[0-9]+\.[0-9]+      { yylval.dval = atof(yytext); return FLOAT_LITERAL; }
 [0-9]+              { yylval.dval = atof(yytext); return INTEGER_LITERAL; }
 \"[^\"]*\"          { yylval.strval = strdup(yytext); return STRING_LITERAL; }
 \'[^\']\'           { yylval.strval = strdup(yytext); return CHAR_LITERAL; }
@@ -73,3 +73,5 @@
 
 [ \t\n\r]           { /* Skiping */ }
 .                   { /* Skiping unknown characters */ }
+
+%%
