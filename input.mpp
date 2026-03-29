@@ -1,11 +1,3 @@
-// ============================================================
-//  input.mpp  --  Comprehensive M++ Test Suite (Updated)
-//  Tests every keyword, operator, control flow, math function,
-//  array behaviour, and edge case.
-//  Expected output is shown in comments beside each show().
-// ============================================================
-
-// ── Helper functions declared BEFORE main ────────────────
 
 define number getSquare()
 start
@@ -195,8 +187,7 @@ start
 
     // ════════════════════════════════════════════════════
     // TEST 12: loop filling array with index variable
-    //   (This is the specific case mentioned in the task)
-    // ════════════════════════════════════════════════════
+    
     show("=== TEST 12: loop writing to array via index var ===");
     number brr[5];
     loop (number li = 0; li < 5; li = li + 1) start
@@ -226,9 +217,9 @@ start
     show(sq);           // 81
     show(getSquare());  // 81
 
-    // ════════════════════════════════════════════════════
+   
     // TEST 14: define nothing (void function)
-    // ════════════════════════════════════════════════════
+    
     show("=== TEST 14: define nothing (void func) ===");
     printBanner();      // ==========================
 

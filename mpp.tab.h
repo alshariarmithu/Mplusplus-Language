@@ -127,7 +127,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 600 "mpp.y"
+#line 587 "mpp.y"
 
     double      dval;
     char       *strval;

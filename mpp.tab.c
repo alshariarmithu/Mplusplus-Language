@@ -106,14 +106,12 @@ typedef enum {
     NODE_RETURN,
     NODE_BREAK,
     NODE_CONTINUE,
-    /* Stack nodes */
     NODE_STACK_DECL,
     NODE_SPUSH,
     NODE_SPOP,
     NODE_SPEEK,
     NODE_SISEMPTY,
     NODE_SSIZE,
-    /* Queue nodes */
     NODE_QUEUE_DECL,
     NODE_QENQUEUE,
     NODE_QDEQUEUE,
@@ -140,7 +138,6 @@ typedef struct Node {
 } Node;
 
 
-/* ── Symbol table ──────────────────────────────────────────────────────── */
 typedef struct {
     char   *name;
     double  val;
@@ -153,14 +150,14 @@ typedef struct {
 Symbol var_table[MAX_SYMBOLS];
 int    var_count = 0;
 
-/* ── Stack table ────────────────────────────────────────────────────────── */
+
 #define MAX_STACKS     100
 #define STACK_CAPACITY 1024
 
 typedef struct {
     char   *name;
     double  data[STACK_CAPACITY];
-    int     top;   /* index of next free slot; 0 = empty */
+    int     top;  
 } StackEntry;
 
 StackEntry stack_table[MAX_STACKS];
@@ -174,7 +171,7 @@ static StackEntry *find_stack(const char *name) {
 }
 
 void init_stack(const char *name) {
-    if (find_stack(name)) return;          /* already exists */
+    if (find_stack(name)) return;      
     if (stack_count >= MAX_STACKS) { fprintf(stderr,"Stack table full\n"); return; }
     stack_table[stack_count].name = strdup(name);
     stack_table[stack_count].top  = 0;
@@ -212,15 +209,15 @@ int stack_size(const char *name) {
     return s ? s->top : 0;
 }
 
-/* ── Queue table ────────────────────────────────────────────────────────── */
+
 #define MAX_QUEUES     100
 #define QUEUE_CAPACITY 1024
 
 typedef struct {
     char   *name;
     double  data[QUEUE_CAPACITY];
-    int     head;   /* index of front element */
-    int     tail;   /* index of next free slot */
+    int     head;   
+    int     tail;   
     int     count;
 } QueueEntry;
 
@@ -280,7 +277,6 @@ int queue_size(const char *name) {
     return q ? q->count : 0;
 }
 
-/* ── Variable / array helpers ──────────────────────────────────────────── */
 typedef struct { char *name; Node *body; } Function;
 #define MAX_FUNCS 100
 Function func_table[MAX_FUNCS];
@@ -376,7 +372,7 @@ Node *find_func_node(const char *name) {
     return NULL;
 }
 
-/* ── AST constructor ────────────────────────────────────────────────────── */
+/* AST constructor */
 Node *create_node(NodeType type) {
     Node *n = calloc(1, sizeof(Node));
     if (!n) { fprintf(stderr, "Out of memory\n"); exit(1); }
@@ -400,21 +396,18 @@ double eval(Node *n) {
         case NODE_ARRAY_REF:
             return get_array_val(n->id, (int)eval(n->index));
 
-        /* ── Stack expressions ── */
         case NODE_SPEEK:    return stack_peek(n->id);
         case NODE_SISEMPTY: return (double)stack_is_empty(n->id);
         case NODE_SSIZE:    return (double)stack_size(n->id);
 
-        /* ── Queue expressions ── */
         case NODE_QPEEK:    return queue_peek(n->id);
         case NODE_QISEMPTY: return (double)queue_is_empty(n->id);
         case NODE_QSIZE:    return (double)queue_size(n->id);
 
-        /* spop / qdequeue used inside expressions */
+        /* spop / qdequeue */
         case NODE_SPOP:     return stack_pop(n->id);
         case NODE_QDEQUEUE: return queue_dequeue(n->id);
 
-        /* Zero-argument user function call */
         case NODE_CALL: {
             int    saved_ret   = g_return_flag;
             double saved_rval  = g_return_val;
@@ -434,7 +427,6 @@ double eval(Node *n) {
             return ret;
         }
 
-        /* Built-in math function call */
         case NODE_MATHFUNC: {
             double arg1 = eval(n->left);
             double arg2 = n->right ? eval(n->right) : 0.0;
@@ -522,7 +514,6 @@ double execute(Node *n) {
             set_array_val(n->id, (int)eval(n->index), eval(n->left));
             break;
 
-        /* ── Stack statements ── */
         case NODE_STACK_DECL:
             init_stack(n->id);
             break;
@@ -532,16 +523,13 @@ double execute(Node *n) {
             break;
 
         case NODE_SPOP:
-            /* as a statement: pop and discard, or store in variable via n->right */
             if (n->right) {
-                /* spop myStack -> varName  stores the result */
                 set_var(n->right->id, stack_pop(n->id));
             } else {
                 stack_pop(n->id);
             }
             break;
 
-        /* ── Queue statements ── */
         case NODE_QUEUE_DECL:
             init_queue(n->id);
             break;
@@ -650,7 +638,6 @@ double execute(Node *n) {
             eval(n);
             break;
 
-        /* stack/queue query nodes used as statements (value discarded) */
         case NODE_SPEEK:
         case NODE_SISEMPTY:
         case NODE_SSIZE:
@@ -666,7 +653,7 @@ double execute(Node *n) {
 }
 
 
-#line 670 "mpp.tab.c"
+#line 657 "mpp.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -1170,15 +1157,15 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,   642,   642,   655,   656,   660,   662,   664,   669,   670,
-     671,   675,   676,   680,   682,   698,   699,   700,   701,   702,
-     703,   704,   705,   706,   712,   718,   720,   722,   729,   735,
-     742,   750,   761,   767,   774,   781,   793,   800,   807,   814,
-     824,   831,   838,   849,   855,   864,   873,   880,   888,   899,
-     911,   921,   923,   925,   927,   934,   940,   942,   946,   952,
-     958,   964,   973,   979,   985,   991,   999,  1006,  1013,  1020,
-    1027,  1034,  1043,  1044,  1045,  1046,  1047,  1048,  1049,  1050,
-    1051,  1052,  1053,  1054,  1055,  1056,  1057,  1058,  1067
+       0,   628,   628,   641,   642,   646,   648,   650,   655,   656,
+     657,   661,   662,   666,   668,   684,   685,   686,   687,   688,
+     689,   690,   691,   692,   698,   704,   706,   708,   714,   720,
+     727,   734,   743,   749,   756,   763,   775,   782,   789,   796,
+     806,   813,   820,   831,   837,   846,   855,   862,   870,   881,
+     893,   903,   905,   907,   909,   916,   922,   924,   927,   933,
+     939,   945,   952,   958,   964,   970,   978,   985,   992,   999,
+    1006,  1013,  1022,  1023,  1024,  1025,  1026,  1027,  1028,  1029,
+    1030,  1031,  1032,  1033,  1034,  1035,  1036,  1037,  1046
 };
 #endif
 
@@ -1999,7 +1986,7 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* program: elements  */
-#line 643 "mpp.y"
+#line 629 "mpp.y"
         {
             Node *m = find_func_node("main");
             if (m) {
@@ -2009,47 +1996,47 @@ yyreduce:
                 fprintf(stderr, "Error: no 'main' function found.\n");
             }
         }
-#line 2013 "mpp.tab.c"
+#line 2000 "mpp.tab.c"
     break;
 
   case 5: /* element: DEFINE type_spec IDENTIFIER LPAREN RPAREN block  */
-#line 661 "mpp.y"
+#line 647 "mpp.y"
         { register_func((yyvsp[-3].strval), (yyvsp[0].node)); }
-#line 2019 "mpp.tab.c"
+#line 2006 "mpp.tab.c"
     break;
 
   case 6: /* element: DEFINE NOTHING IDENTIFIER LPAREN RPAREN block  */
-#line 663 "mpp.y"
+#line 649 "mpp.y"
         { register_func((yyvsp[-3].strval), (yyvsp[0].node)); }
-#line 2025 "mpp.tab.c"
+#line 2012 "mpp.tab.c"
     break;
 
   case 7: /* element: DEFINE NOTHING MAIN LPAREN RPAREN block  */
-#line 665 "mpp.y"
+#line 651 "mpp.y"
         { register_func("main", (yyvsp[0].node)); }
-#line 2031 "mpp.tab.c"
+#line 2018 "mpp.tab.c"
     break;
 
   case 11: /* block: START statements FINISH  */
-#line 675 "mpp.y"
+#line 661 "mpp.y"
                                { (yyval.node) = (yyvsp[-1].node); }
-#line 2037 "mpp.tab.c"
+#line 2024 "mpp.tab.c"
     break;
 
   case 12: /* block: START FINISH  */
-#line 676 "mpp.y"
+#line 662 "mpp.y"
                                { (yyval.node) = NULL; }
-#line 2043 "mpp.tab.c"
+#line 2030 "mpp.tab.c"
     break;
 
   case 13: /* statements: statement  */
-#line 681 "mpp.y"
+#line 667 "mpp.y"
         { (yyval.node) = (yyvsp[0].node); }
-#line 2049 "mpp.tab.c"
+#line 2036 "mpp.tab.c"
     break;
 
   case 14: /* statements: statements statement  */
-#line 683 "mpp.y"
+#line 669 "mpp.y"
         {
             if ((yyvsp[-1].node) == NULL) {
                 (yyval.node) = (yyvsp[0].node);
@@ -2062,136 +2049,134 @@ yyreduce:
                 (yyval.node) = n;
             }
         }
-#line 2066 "mpp.tab.c"
+#line 2053 "mpp.tab.c"
     break;
 
   case 15: /* statement: declaration SEMICOLON  */
-#line 698 "mpp.y"
+#line 684 "mpp.y"
                                     { (yyval.node) = (yyvsp[-1].node); }
-#line 2072 "mpp.tab.c"
+#line 2059 "mpp.tab.c"
     break;
 
   case 16: /* statement: assignment SEMICOLON  */
-#line 699 "mpp.y"
+#line 685 "mpp.y"
                                     { (yyval.node) = (yyvsp[-1].node); }
-#line 2078 "mpp.tab.c"
+#line 2065 "mpp.tab.c"
     break;
 
   case 17: /* statement: show_stmt SEMICOLON  */
-#line 700 "mpp.y"
+#line 686 "mpp.y"
                                     { (yyval.node) = (yyvsp[-1].node); }
-#line 2084 "mpp.tab.c"
+#line 2071 "mpp.tab.c"
     break;
 
   case 18: /* statement: take_stmt SEMICOLON  */
-#line 701 "mpp.y"
+#line 687 "mpp.y"
                                     { (yyval.node) = (yyvsp[-1].node); }
-#line 2090 "mpp.tab.c"
+#line 2077 "mpp.tab.c"
     break;
 
   case 19: /* statement: if_stmt  */
-#line 702 "mpp.y"
+#line 688 "mpp.y"
                                     { (yyval.node) = (yyvsp[0].node); }
-#line 2096 "mpp.tab.c"
+#line 2083 "mpp.tab.c"
     break;
 
   case 20: /* statement: loop_stmt  */
-#line 703 "mpp.y"
+#line 689 "mpp.y"
                                     { (yyval.node) = (yyvsp[0].node); }
-#line 2102 "mpp.tab.c"
+#line 2089 "mpp.tab.c"
     break;
 
   case 21: /* statement: repeat_stmt  */
-#line 704 "mpp.y"
+#line 690 "mpp.y"
                                     { (yyval.node) = (yyvsp[0].node); }
-#line 2108 "mpp.tab.c"
+#line 2095 "mpp.tab.c"
     break;
 
   case 22: /* statement: block  */
-#line 705 "mpp.y"
+#line 691 "mpp.y"
                                     { (yyval.node) = (yyvsp[0].node); }
-#line 2114 "mpp.tab.c"
+#line 2101 "mpp.tab.c"
     break;
 
   case 23: /* statement: DORETURN expr SEMICOLON  */
-#line 707 "mpp.y"
+#line 693 "mpp.y"
         {
             Node *n = create_node(NODE_RETURN);
             n->left = (yyvsp[-1].node);
             (yyval.node) = n;
         }
-#line 2124 "mpp.tab.c"
+#line 2111 "mpp.tab.c"
     break;
 
   case 24: /* statement: DORETURN SEMICOLON  */
-#line 713 "mpp.y"
+#line 699 "mpp.y"
         {
             Node *n = create_node(NODE_RETURN);
             n->left = NULL;
             (yyval.node) = n;
         }
-#line 2134 "mpp.tab.c"
+#line 2121 "mpp.tab.c"
     break;
 
   case 25: /* statement: STOP SEMICOLON  */
-#line 719 "mpp.y"
+#line 705 "mpp.y"
         { (yyval.node) = create_node(NODE_BREAK); }
-#line 2140 "mpp.tab.c"
+#line 2127 "mpp.tab.c"
     break;
 
   case 26: /* statement: SKIP SEMICOLON  */
-#line 721 "mpp.y"
+#line 707 "mpp.y"
         { (yyval.node) = create_node(NODE_CONTINUE); }
-#line 2146 "mpp.tab.c"
+#line 2133 "mpp.tab.c"
     break;
 
   case 27: /* statement: IDENTIFIER LPAREN RPAREN SEMICOLON  */
-#line 723 "mpp.y"
+#line 709 "mpp.y"
         {
             Node *n = create_node(NODE_CALL);
             n->id = (yyvsp[-3].strval);
             (yyval.node) = n;
         }
-#line 2156 "mpp.tab.c"
+#line 2143 "mpp.tab.c"
     break;
 
   case 28: /* statement: STACK IDENTIFIER SEMICOLON  */
-#line 730 "mpp.y"
+#line 715 "mpp.y"
         {
             Node *n = create_node(NODE_STACK_DECL);
             n->id = (yyvsp[-1].strval);
             (yyval.node) = n;
         }
-#line 2166 "mpp.tab.c"
+#line 2153 "mpp.tab.c"
     break;
 
   case 29: /* statement: SPUSH IDENTIFIER expr SEMICOLON  */
-#line 736 "mpp.y"
+#line 721 "mpp.y"
         {
             Node *n = create_node(NODE_SPUSH);
             n->id   = (yyvsp[-2].strval);
             n->left = (yyvsp[-1].node);
             (yyval.node) = n;
         }
-#line 2177 "mpp.tab.c"
+#line 2164 "mpp.tab.c"
     break;
 
   case 30: /* statement: SPOP IDENTIFIER SEMICOLON  */
-#line 743 "mpp.y"
+#line 728 "mpp.y"
         {
-            /* discard the popped value */
             Node *n = create_node(NODE_SPOP);
             n->id    = (yyvsp[-1].strval);
             n->right = NULL;
             (yyval.node) = n;
         }
-#line 2189 "mpp.tab.c"
+#line 2175 "mpp.tab.c"
     break;
 
   case 31: /* statement: SPOP IDENTIFIER IDENTIFIER SEMICOLON  */
-#line 751 "mpp.y"
+#line 735 "mpp.y"
         {
-            /* store popped value into variable */
             Node *n = create_node(NODE_SPOP);
             n->id   = (yyvsp[-2].strval);
             Node *v = create_node(NODE_VAR);
@@ -2199,43 +2184,43 @@ yyreduce:
             n->right = v;
             (yyval.node) = n;
         }
-#line 2203 "mpp.tab.c"
+#line 2188 "mpp.tab.c"
     break;
 
   case 32: /* statement: QUEUE IDENTIFIER SEMICOLON  */
-#line 762 "mpp.y"
+#line 744 "mpp.y"
         {
             Node *n = create_node(NODE_QUEUE_DECL);
             n->id = (yyvsp[-1].strval);
             (yyval.node) = n;
         }
-#line 2213 "mpp.tab.c"
+#line 2198 "mpp.tab.c"
     break;
 
   case 33: /* statement: QENQUEUE IDENTIFIER expr SEMICOLON  */
-#line 768 "mpp.y"
+#line 750 "mpp.y"
         {
             Node *n = create_node(NODE_QENQUEUE);
             n->id   = (yyvsp[-2].strval);
             n->left = (yyvsp[-1].node);
             (yyval.node) = n;
         }
-#line 2224 "mpp.tab.c"
+#line 2209 "mpp.tab.c"
     break;
 
   case 34: /* statement: QDEQUEUE IDENTIFIER SEMICOLON  */
-#line 775 "mpp.y"
+#line 757 "mpp.y"
         {
             Node *n = create_node(NODE_QDEQUEUE);
             n->id    = (yyvsp[-1].strval);
             n->right = NULL;
             (yyval.node) = n;
         }
-#line 2235 "mpp.tab.c"
+#line 2220 "mpp.tab.c"
     break;
 
   case 35: /* statement: QDEQUEUE IDENTIFIER IDENTIFIER SEMICOLON  */
-#line 782 "mpp.y"
+#line 764 "mpp.y"
         {
             Node *n = create_node(NODE_QDEQUEUE);
             n->id   = (yyvsp[-2].strval);
@@ -2244,77 +2229,77 @@ yyreduce:
             n->right = v;
             (yyval.node) = n;
         }
-#line 2248 "mpp.tab.c"
+#line 2233 "mpp.tab.c"
     break;
 
   case 36: /* declaration: type_spec IDENTIFIER ASSIGN expr  */
-#line 794 "mpp.y"
+#line 776 "mpp.y"
         {
             Node *n = create_node(NODE_VAR_DECL);
             n->id   = (yyvsp[-2].strval);
             n->left = (yyvsp[0].node);
             (yyval.node) = n;
         }
-#line 2259 "mpp.tab.c"
+#line 2244 "mpp.tab.c"
     break;
 
   case 37: /* declaration: type_spec IDENTIFIER ASSIGN CHAR_LITERAL  */
-#line 801 "mpp.y"
+#line 783 "mpp.y"
         {
             Node *n = create_node(NODE_VAR_DECL);
             n->id  = (yyvsp[-2].strval);
             n->str = (yyvsp[0].strval);
             (yyval.node) = n;
         }
-#line 2270 "mpp.tab.c"
+#line 2255 "mpp.tab.c"
     break;
 
   case 38: /* declaration: type_spec IDENTIFIER  */
-#line 808 "mpp.y"
+#line 790 "mpp.y"
         {
             Node *n = create_node(NODE_VAR_DECL);
             n->id   = (yyvsp[0].strval);
             n->left = NULL;
             (yyval.node) = n;
         }
-#line 2281 "mpp.tab.c"
+#line 2266 "mpp.tab.c"
     break;
 
   case 39: /* declaration: type_spec IDENTIFIER LBRACK INTEGER_LITERAL RBRACK  */
-#line 815 "mpp.y"
+#line 797 "mpp.y"
         {
             Node *n = create_node(NODE_ARRAY_DECL);
             n->id  = (yyvsp[-3].strval);
             n->val = (yyvsp[-1].dval);
             (yyval.node) = n;
         }
-#line 2292 "mpp.tab.c"
+#line 2277 "mpp.tab.c"
     break;
 
   case 40: /* assignment: IDENTIFIER ASSIGN expr  */
-#line 825 "mpp.y"
+#line 807 "mpp.y"
         {
             Node *n = create_node(NODE_ASSIGN);
             n->id   = (yyvsp[-2].strval);
             n->left = (yyvsp[0].node);
             (yyval.node) = n;
         }
-#line 2303 "mpp.tab.c"
+#line 2288 "mpp.tab.c"
     break;
 
   case 41: /* assignment: IDENTIFIER ASSIGN CHAR_LITERAL  */
-#line 832 "mpp.y"
+#line 814 "mpp.y"
         {
             Node *n = create_node(NODE_ASSIGN);
             n->id  = (yyvsp[-2].strval);
             n->str = (yyvsp[0].strval);
             (yyval.node) = n;
         }
-#line 2314 "mpp.tab.c"
+#line 2299 "mpp.tab.c"
     break;
 
   case 42: /* assignment: IDENTIFIER LBRACK expr RBRACK ASSIGN expr  */
-#line 839 "mpp.y"
+#line 821 "mpp.y"
         {
             Node *n = create_node(NODE_ARRAY_ASSIGN);
             n->id    = (yyvsp[-5].strval);
@@ -2322,52 +2307,52 @@ yyreduce:
             n->left  = (yyvsp[0].node);
             (yyval.node) = n;
         }
-#line 2326 "mpp.tab.c"
+#line 2311 "mpp.tab.c"
     break;
 
   case 43: /* show_stmt: SHOW LPAREN expr RPAREN  */
-#line 850 "mpp.y"
+#line 832 "mpp.y"
         {
             Node *n = create_node(NODE_SHOW);
             n->left = (yyvsp[-1].node);
             (yyval.node) = n;
         }
-#line 2336 "mpp.tab.c"
+#line 2321 "mpp.tab.c"
     break;
 
   case 44: /* show_stmt: SHOW LPAREN STRING_LITERAL RPAREN  */
-#line 856 "mpp.y"
+#line 838 "mpp.y"
         {
             Node *n = create_node(NODE_SHOW);
             n->str = (yyvsp[-1].strval);
             (yyval.node) = n;
         }
-#line 2346 "mpp.tab.c"
+#line 2331 "mpp.tab.c"
     break;
 
   case 45: /* take_stmt: TAKE IDENTIFIER  */
-#line 865 "mpp.y"
+#line 847 "mpp.y"
         {
             Node *n = create_node(NODE_TAKE);
             n->id = (yyvsp[0].strval);
             (yyval.node) = n;
         }
-#line 2356 "mpp.tab.c"
+#line 2341 "mpp.tab.c"
     break;
 
   case 46: /* if_stmt: WHEN LPAREN expr RPAREN block  */
-#line 874 "mpp.y"
+#line 856 "mpp.y"
         {
             Node *n = create_node(NODE_IF);
             n->cond = (yyvsp[-2].node);
             n->body = (yyvsp[0].node);
             (yyval.node) = n;
         }
-#line 2367 "mpp.tab.c"
+#line 2352 "mpp.tab.c"
     break;
 
   case 47: /* if_stmt: WHEN LPAREN expr RPAREN block OTHERWISE block  */
-#line 881 "mpp.y"
+#line 863 "mpp.y"
         {
             Node *n = create_node(NODE_IF);
             n->cond      = (yyvsp[-4].node);
@@ -2375,11 +2360,11 @@ yyreduce:
             n->else_part = (yyvsp[0].node);
             (yyval.node) = n;
         }
-#line 2379 "mpp.tab.c"
+#line 2364 "mpp.tab.c"
     break;
 
   case 48: /* if_stmt: WHEN LPAREN expr RPAREN block OTHERWISE if_stmt  */
-#line 889 "mpp.y"
+#line 871 "mpp.y"
         {
             Node *n = create_node(NODE_IF);
             n->cond      = (yyvsp[-4].node);
@@ -2387,11 +2372,11 @@ yyreduce:
             n->else_part = (yyvsp[0].node);
             (yyval.node) = n;
         }
-#line 2391 "mpp.tab.c"
+#line 2376 "mpp.tab.c"
     break;
 
   case 49: /* loop_stmt: LOOP LPAREN declaration SEMICOLON expr SEMICOLON assignment RPAREN block  */
-#line 900 "mpp.y"
+#line 882 "mpp.y"
         {
             Node *n = create_node(NODE_LOOP);
             n->left = (yyvsp[-6].node);
@@ -2400,210 +2385,209 @@ yyreduce:
             n->body = (yyvsp[0].node);
             (yyval.node) = n;
         }
-#line 2404 "mpp.tab.c"
+#line 2389 "mpp.tab.c"
     break;
 
   case 50: /* repeat_stmt: REPEAT LPAREN expr RPAREN block  */
-#line 912 "mpp.y"
+#line 894 "mpp.y"
         {
             Node *n = create_node(NODE_REPEAT);
             n->cond = (yyvsp[-2].node);
             n->body = (yyvsp[0].node);
             (yyval.node) = n;
         }
-#line 2415 "mpp.tab.c"
+#line 2400 "mpp.tab.c"
     break;
 
   case 51: /* expr: INTEGER_LITERAL  */
-#line 922 "mpp.y"
+#line 904 "mpp.y"
         { Node *n = create_node(NODE_NUM); n->val = (yyvsp[0].dval); (yyval.node) = n; }
-#line 2421 "mpp.tab.c"
+#line 2406 "mpp.tab.c"
     break;
 
   case 52: /* expr: FLOAT_LITERAL  */
-#line 924 "mpp.y"
+#line 906 "mpp.y"
         { Node *n = create_node(NODE_NUM); n->val = (yyvsp[0].dval); (yyval.node) = n; }
-#line 2427 "mpp.tab.c"
+#line 2412 "mpp.tab.c"
     break;
 
   case 53: /* expr: IDENTIFIER  */
-#line 926 "mpp.y"
+#line 908 "mpp.y"
         { Node *n = create_node(NODE_VAR); n->id = (yyvsp[0].strval); (yyval.node) = n; }
-#line 2433 "mpp.tab.c"
+#line 2418 "mpp.tab.c"
     break;
 
   case 54: /* expr: IDENTIFIER LBRACK expr RBRACK  */
-#line 928 "mpp.y"
+#line 910 "mpp.y"
         {
             Node *n = create_node(NODE_ARRAY_REF);
             n->id    = (yyvsp[-3].strval);
             n->index = (yyvsp[-1].node);
             (yyval.node) = n;
         }
-#line 2444 "mpp.tab.c"
+#line 2429 "mpp.tab.c"
     break;
 
   case 55: /* expr: IDENTIFIER LPAREN RPAREN  */
-#line 935 "mpp.y"
+#line 917 "mpp.y"
         {
             Node *n = create_node(NODE_CALL);
             n->id = (yyvsp[-2].strval);
             (yyval.node) = n;
         }
-#line 2454 "mpp.tab.c"
+#line 2439 "mpp.tab.c"
     break;
 
   case 56: /* expr: YES  */
-#line 941 "mpp.y"
+#line 923 "mpp.y"
         { Node *n = create_node(NODE_NUM); n->val = 1.0; (yyval.node) = n; }
-#line 2460 "mpp.tab.c"
+#line 2445 "mpp.tab.c"
     break;
 
   case 57: /* expr: NO  */
-#line 943 "mpp.y"
+#line 925 "mpp.y"
         { Node *n = create_node(NODE_NUM); n->val = 0.0; (yyval.node) = n; }
-#line 2466 "mpp.tab.c"
+#line 2451 "mpp.tab.c"
     break;
 
   case 58: /* expr: SPEEK IDENTIFIER  */
-#line 947 "mpp.y"
+#line 928 "mpp.y"
         {
             Node *n = create_node(NODE_SPEEK);
             n->id = (yyvsp[0].strval);
             (yyval.node) = n;
         }
-#line 2476 "mpp.tab.c"
+#line 2461 "mpp.tab.c"
     break;
 
   case 59: /* expr: SISEMPTY IDENTIFIER  */
-#line 953 "mpp.y"
+#line 934 "mpp.y"
         {
             Node *n = create_node(NODE_SISEMPTY);
             n->id = (yyvsp[0].strval);
             (yyval.node) = n;
         }
-#line 2486 "mpp.tab.c"
+#line 2471 "mpp.tab.c"
     break;
 
   case 60: /* expr: SSIZE IDENTIFIER  */
-#line 959 "mpp.y"
+#line 940 "mpp.y"
         {
             Node *n = create_node(NODE_SSIZE);
             n->id = (yyvsp[0].strval);
             (yyval.node) = n;
         }
-#line 2496 "mpp.tab.c"
+#line 2481 "mpp.tab.c"
     break;
 
   case 61: /* expr: SPOP IDENTIFIER  */
-#line 965 "mpp.y"
+#line 946 "mpp.y"
         {
-            /* spop used directly in an expression */
             Node *n = create_node(NODE_SPOP);
             n->id = (yyvsp[0].strval);
             (yyval.node) = n;
         }
-#line 2507 "mpp.tab.c"
+#line 2491 "mpp.tab.c"
     break;
 
   case 62: /* expr: QPEEK IDENTIFIER  */
-#line 974 "mpp.y"
+#line 953 "mpp.y"
         {
             Node *n = create_node(NODE_QPEEK);
             n->id = (yyvsp[0].strval);
             (yyval.node) = n;
         }
-#line 2517 "mpp.tab.c"
+#line 2501 "mpp.tab.c"
     break;
 
   case 63: /* expr: QISEMPTY IDENTIFIER  */
-#line 980 "mpp.y"
+#line 959 "mpp.y"
         {
             Node *n = create_node(NODE_QISEMPTY);
             n->id = (yyvsp[0].strval);
             (yyval.node) = n;
         }
-#line 2527 "mpp.tab.c"
+#line 2511 "mpp.tab.c"
     break;
 
   case 64: /* expr: QSIZE IDENTIFIER  */
-#line 986 "mpp.y"
+#line 965 "mpp.y"
         {
             Node *n = create_node(NODE_QSIZE);
             n->id = (yyvsp[0].strval);
             (yyval.node) = n;
         }
-#line 2537 "mpp.tab.c"
+#line 2521 "mpp.tab.c"
     break;
 
   case 65: /* expr: QDEQUEUE IDENTIFIER  */
-#line 992 "mpp.y"
+#line 971 "mpp.y"
         {
             /* qdequeue used directly in an expression */
             Node *n = create_node(NODE_QDEQUEUE);
             n->id = (yyvsp[0].strval);
             (yyval.node) = n;
         }
-#line 2548 "mpp.tab.c"
+#line 2532 "mpp.tab.c"
     break;
 
   case 66: /* expr: MSIN LPAREN expr RPAREN  */
-#line 1000 "mpp.y"
+#line 979 "mpp.y"
         {
             Node *n = create_node(NODE_MATHFUNC);
             n->id   = strdup("msin");
             n->left = (yyvsp[-1].node);
             (yyval.node) = n;
         }
-#line 2559 "mpp.tab.c"
+#line 2543 "mpp.tab.c"
     break;
 
   case 67: /* expr: MCOS LPAREN expr RPAREN  */
-#line 1007 "mpp.y"
+#line 986 "mpp.y"
         {
             Node *n = create_node(NODE_MATHFUNC);
             n->id   = strdup("mcos");
             n->left = (yyvsp[-1].node);
             (yyval.node) = n;
         }
-#line 2570 "mpp.tab.c"
+#line 2554 "mpp.tab.c"
     break;
 
   case 68: /* expr: MTAN LPAREN expr RPAREN  */
-#line 1014 "mpp.y"
+#line 993 "mpp.y"
         {
             Node *n = create_node(NODE_MATHFUNC);
             n->id   = strdup("mtan");
             n->left = (yyvsp[-1].node);
             (yyval.node) = n;
         }
-#line 2581 "mpp.tab.c"
+#line 2565 "mpp.tab.c"
     break;
 
   case 69: /* expr: MLOG LPAREN expr RPAREN  */
-#line 1021 "mpp.y"
+#line 1000 "mpp.y"
         {
             Node *n = create_node(NODE_MATHFUNC);
             n->id   = strdup("mlog");
             n->left = (yyvsp[-1].node);
             (yyval.node) = n;
         }
-#line 2592 "mpp.tab.c"
+#line 2576 "mpp.tab.c"
     break;
 
   case 70: /* expr: MSQRT LPAREN expr RPAREN  */
-#line 1028 "mpp.y"
+#line 1007 "mpp.y"
         {
             Node *n = create_node(NODE_MATHFUNC);
             n->id   = strdup("msqrt");
             n->left = (yyvsp[-1].node);
             (yyval.node) = n;
         }
-#line 2603 "mpp.tab.c"
+#line 2587 "mpp.tab.c"
     break;
 
   case 71: /* expr: MPOW LPAREN expr COMMA expr RPAREN  */
-#line 1035 "mpp.y"
+#line 1014 "mpp.y"
         {
             Node *n  = create_node(NODE_MATHFUNC);
             n->id    = strdup("mpow");
@@ -2611,101 +2595,101 @@ yyreduce:
             n->right = (yyvsp[-1].node);
             (yyval.node) = n;
         }
-#line 2615 "mpp.tab.c"
+#line 2599 "mpp.tab.c"
     break;
 
   case 72: /* expr: expr PLUS expr  */
-#line 1043 "mpp.y"
+#line 1022 "mpp.y"
                        { Node *n=create_node(NODE_OP); n->op='+'; n->left=(yyvsp[-2].node); n->right=(yyvsp[0].node); (yyval.node)=n; }
-#line 2621 "mpp.tab.c"
+#line 2605 "mpp.tab.c"
     break;
 
   case 73: /* expr: expr MINUS expr  */
-#line 1044 "mpp.y"
+#line 1023 "mpp.y"
                        { Node *n=create_node(NODE_OP); n->op='-'; n->left=(yyvsp[-2].node); n->right=(yyvsp[0].node); (yyval.node)=n; }
-#line 2627 "mpp.tab.c"
+#line 2611 "mpp.tab.c"
     break;
 
   case 74: /* expr: expr MUL expr  */
-#line 1045 "mpp.y"
+#line 1024 "mpp.y"
                        { Node *n=create_node(NODE_OP); n->op='*'; n->left=(yyvsp[-2].node); n->right=(yyvsp[0].node); (yyval.node)=n; }
-#line 2633 "mpp.tab.c"
+#line 2617 "mpp.tab.c"
     break;
 
   case 75: /* expr: expr DIV expr  */
-#line 1046 "mpp.y"
+#line 1025 "mpp.y"
                        { Node *n=create_node(NODE_OP); n->op='/'; n->left=(yyvsp[-2].node); n->right=(yyvsp[0].node); (yyval.node)=n; }
-#line 2639 "mpp.tab.c"
+#line 2623 "mpp.tab.c"
     break;
 
   case 76: /* expr: expr GT expr  */
-#line 1047 "mpp.y"
+#line 1026 "mpp.y"
                        { Node *n=create_node(NODE_OP); n->op='>'; n->left=(yyvsp[-2].node); n->right=(yyvsp[0].node); (yyval.node)=n; }
-#line 2645 "mpp.tab.c"
+#line 2629 "mpp.tab.c"
     break;
 
   case 77: /* expr: expr LT expr  */
-#line 1048 "mpp.y"
+#line 1027 "mpp.y"
                        { Node *n=create_node(NODE_OP); n->op='<'; n->left=(yyvsp[-2].node); n->right=(yyvsp[0].node); (yyval.node)=n; }
-#line 2651 "mpp.tab.c"
+#line 2635 "mpp.tab.c"
     break;
 
   case 78: /* expr: expr GTE expr  */
-#line 1049 "mpp.y"
+#line 1028 "mpp.y"
                        { Node *n=create_node(NODE_OP); n->op='G'; n->left=(yyvsp[-2].node); n->right=(yyvsp[0].node); (yyval.node)=n; }
-#line 2657 "mpp.tab.c"
+#line 2641 "mpp.tab.c"
     break;
 
   case 79: /* expr: expr LTE expr  */
-#line 1050 "mpp.y"
+#line 1029 "mpp.y"
                        { Node *n=create_node(NODE_OP); n->op='L'; n->left=(yyvsp[-2].node); n->right=(yyvsp[0].node); (yyval.node)=n; }
-#line 2663 "mpp.tab.c"
+#line 2647 "mpp.tab.c"
     break;
 
   case 80: /* expr: expr EQ expr  */
-#line 1051 "mpp.y"
+#line 1030 "mpp.y"
                        { Node *n=create_node(NODE_OP); n->op='E'; n->left=(yyvsp[-2].node); n->right=(yyvsp[0].node); (yyval.node)=n; }
-#line 2669 "mpp.tab.c"
+#line 2653 "mpp.tab.c"
     break;
 
   case 81: /* expr: expr NEQ expr  */
-#line 1052 "mpp.y"
+#line 1031 "mpp.y"
                        { Node *n=create_node(NODE_OP); n->op='N'; n->left=(yyvsp[-2].node); n->right=(yyvsp[0].node); (yyval.node)=n; }
-#line 2675 "mpp.tab.c"
+#line 2659 "mpp.tab.c"
     break;
 
   case 82: /* expr: expr BAND expr  */
-#line 1053 "mpp.y"
+#line 1032 "mpp.y"
                        { Node *n=create_node(NODE_OP); n->op='&'; n->left=(yyvsp[-2].node); n->right=(yyvsp[0].node); (yyval.node)=n; }
-#line 2681 "mpp.tab.c"
+#line 2665 "mpp.tab.c"
     break;
 
   case 83: /* expr: expr BOR expr  */
-#line 1054 "mpp.y"
+#line 1033 "mpp.y"
                        { Node *n=create_node(NODE_OP); n->op='|'; n->left=(yyvsp[-2].node); n->right=(yyvsp[0].node); (yyval.node)=n; }
-#line 2687 "mpp.tab.c"
+#line 2671 "mpp.tab.c"
     break;
 
   case 84: /* expr: expr MOD expr  */
-#line 1055 "mpp.y"
+#line 1034 "mpp.y"
                        { Node *n=create_node(NODE_OP); n->op='%'; n->left=(yyvsp[-2].node); n->right=(yyvsp[0].node); (yyval.node)=n; }
-#line 2693 "mpp.tab.c"
+#line 2677 "mpp.tab.c"
     break;
 
   case 85: /* expr: expr LAND expr  */
-#line 1056 "mpp.y"
+#line 1035 "mpp.y"
                        { Node *n=create_node(NODE_OP); n->op='A'; n->left=(yyvsp[-2].node); n->right=(yyvsp[0].node); (yyval.node)=n; }
-#line 2699 "mpp.tab.c"
+#line 2683 "mpp.tab.c"
     break;
 
   case 86: /* expr: expr LOR expr  */
-#line 1057 "mpp.y"
+#line 1036 "mpp.y"
                        { Node *n=create_node(NODE_OP); n->op='O'; n->left=(yyvsp[-2].node); n->right=(yyvsp[0].node); (yyval.node)=n; }
-#line 2705 "mpp.tab.c"
+#line 2689 "mpp.tab.c"
     break;
 
   case 87: /* expr: MINUS expr  */
-#line 1059 "mpp.y"
+#line 1038 "mpp.y"
         {
             Node *zero = create_node(NODE_NUM); zero->val = 0.0;
             Node *n    = create_node(NODE_OP);
@@ -2714,17 +2698,17 @@ yyreduce:
             n->right = (yyvsp[0].node);
             (yyval.node) = n;
         }
-#line 2718 "mpp.tab.c"
+#line 2702 "mpp.tab.c"
     break;
 
   case 88: /* expr: LPAREN expr RPAREN  */
-#line 1068 "mpp.y"
+#line 1047 "mpp.y"
         { (yyval.node) = (yyvsp[-1].node); }
-#line 2724 "mpp.tab.c"
+#line 2708 "mpp.tab.c"
     break;
 
 
-#line 2728 "mpp.tab.c"
+#line 2712 "mpp.tab.c"
 
       default: break;
     }
@@ -2917,10 +2901,10 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 1071 "mpp.y"
+#line 1050 "mpp.y"
 
 
-/* ── Error handler ─────────────────────────────────────────────────────── */
+/* Error handler */
 void yyerror(const char *s) {
     fprintf(stderr, "Syntax Error at line %d: %s\n", yylineno, s);
 }

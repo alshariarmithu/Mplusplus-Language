@@ -1,12 +1,3 @@
-// ============================================================
-//  input.mpp  --  Comprehensive M++ Test Suite (Updated)
-//  Tests every keyword, operator, control flow, math function,
-//  array behaviour, and edge case.
-//  Expected output is shown in comments beside each show().
-// ============================================================
-
-// ── Helper functions declared BEFORE main ────────────────
-
 define number getSquare()
 start
     doreturn 9 * 9;
@@ -14,7 +5,7 @@ finish
 
 define nothing printBanner()
 start
-    show("==========================");
+    show("-------------------");
 finish
 
 define number doubleIt()
@@ -50,14 +41,13 @@ start
     doreturn 1;
 finish
 
-// ── Main entry point ─────────────────────────────────────
+// ── Main entry point 
 define nothing main()
 start
 
-    // ════════════════════════════════════════════════════
     // TEST 1: number (int) arithmetic
-    // ════════════════════════════════════════════════════
-    show("=== TEST 1: number variables & arithmetic ===");
+
+    show(" TEST 1: number variables & arithmetic ");
     number a = 10;
     number b = 3;
     show(a);            // 10
@@ -68,29 +58,28 @@ start
     show(a / b);        // 3
     show(b * b);        // 9
 
-    // ════════════════════════════════════════════════════
+    
     // TEST 2: decimal (float) arithmetic
-    // ════════════════════════════════════════════════════
-    show("=== TEST 2: decimal variables ===");
+    
+    show(" TEST 2: decimal variables ");
     decimal pi = 3.14;
     decimal r  = 2.5;
     show(pi);           // 3.14
     show(r);            // 2.5
     show(pi * r * r);   // 19.625
 
-    // ════════════════════════════════════════════════════
+    
     // TEST 3: letter (char) variable
-    // ════════════════════════════════════════════════════
-    show("=== TEST 3: letter variable ===");
+
+    show(" TEST 3: letter variable ");
     letter ch = 'A';
     show(ch);           // A
     letter z  = 'z';
     show(z);            // z
 
-    // ════════════════════════════════════════════════════
     // TEST 4: yes / no boolean literals
-    // ════════════════════════════════════════════════════
-    show("=== TEST 4: yes/no boolean literals ===");
+   
+    show(" TEST 4: yes/no boolean literals ");
     number t = yes;
     number f = no;
     show(t);            // 1
@@ -98,10 +87,10 @@ start
     show(yes);          // 1
     show(no);           // 0
 
-    // ════════════════════════════════════════════════════
+    
     // TEST 5: All comparison and equality operators
-    // ════════════════════════════════════════════════════
-    show("=== TEST 5: comparison operators ===");
+    
+    show(" TEST 5: comparison operators ");
     show(10 > 5);       // 1
     show(3 < 2);        // 0
     show(5 >= 5);       // 1
@@ -110,10 +99,10 @@ start
     show(7 != 8);       // 1
     show(7 == 8);       // 0
 
-    // ════════════════════════════════════════════════════
+    
     // TEST 6: when / otherwise if-else chain
-    // ════════════════════════════════════════════════════
-    show("=== TEST 6: when / otherwise ===");
+    
+    show(" TEST 6: when / otherwise ");
     number val = 5;
     when (val > 0) start
         show("Positive");           // Positive
@@ -136,28 +125,28 @@ start
         show("Grade: F");
     finish
 
-    // ════════════════════════════════════════════════════
+    
     // TEST 7: repeat (while) loop
-    // ════════════════════════════════════════════════════
-    show("=== TEST 7: repeat (while loop) ===");
+    
+    show(" TEST 7: repeat (while loop) ");
     number wi = 1;
     repeat (wi <= 5) start
         show(wi);       // 1 2 3 4 5
         wi = wi + 1;
     finish
 
-    // ════════════════════════════════════════════════════
+    
     // TEST 8: loop (for loop)
-    // ════════════════════════════════════════════════════
+   
     show("=== TEST 8: loop (for loop) ===");
     loop (number j = 0; j < 5; j = j + 1) start
         show(j);        // 0 1 2 3 4
     finish
 
-    // ════════════════════════════════════════════════════
+    
     // TEST 9: stop (break) inside repeat
-    // ════════════════════════════════════════════════════
-    show("=== TEST 9: stop (break) ===");
+   
+    show(" TEST 9: stop (break) ");
     number k = 0;
     repeat (k < 10) start
         when (k == 4) start
@@ -167,10 +156,10 @@ start
         k = k + 1;
     finish
 
-    // ════════════════════════════════════════════════════
+    
     // TEST 10: skip (continue) inside loop
-    // ════════════════════════════════════════════════════
-    show("=== TEST 10: skip (continue) ===");
+    
+    show(" TEST 10: skip (continue) ");
     loop (number m = 0; m < 6; m = m + 1) start
         when (m == 3) start
             skip;
@@ -178,10 +167,10 @@ start
         show(m);        // 0 1 2 4 5
     finish
 
-    // ════════════════════════════════════════════════════
+    
     // TEST 11: Arrays – declaration, assignment, access
-    // ════════════════════════════════════════════════════
-    show("=== TEST 11: arrays ===");
+    
+    show(" TEST 11: arrays ");
     number arr[5];
     arr[0] = 100;
     arr[1] = 200;
@@ -193,11 +182,10 @@ start
     show(arr[4]);           // 500
     show(arr[1] + arr[2]);  // 500
 
-    // ════════════════════════════════════════════════════
+    
     // TEST 12: loop filling array with index variable
-    //   (This is the specific case mentioned in the task)
-    // ════════════════════════════════════════════════════
-    show("=== TEST 12: loop writing to array via index var ===");
+    
+    show(" TEST 12: loop writing to array via index var ");
     number brr[5];
     loop (number li = 0; li < 5; li = li + 1) start
         brr[li] = 66;
@@ -218,42 +206,41 @@ start
     show(crr[2]);   // 0
     show(crr[3]);   // 0
 
-    // ════════════════════════════════════════════════════
+    
     // TEST 13: define + doreturn (value-returning function)
-    // ════════════════════════════════════════════════════
-    show("=== TEST 13: define + doreturn ===");
+    
+    show(" TEST 13: define + doreturn ");
     number sq = getSquare();
     show(sq);           // 81
     show(getSquare());  // 81
 
-    // ════════════════════════════════════════════════════
+    
     // TEST 14: define nothing (void function)
-    // ════════════════════════════════════════════════════
-    show("=== TEST 14: define nothing (void func) ===");
-    printBanner();      // ==========================
+   
+    show(" TEST 14: define nothing (void func) ");
+    printBanner();      
 
-    // ════════════════════════════════════════════════════
     // TEST 15: function using shared global variable
-    // ════════════════════════════════════════════════════
-    show("=== TEST 15: function with shared variable ===");
+    
+    show(" TEST 15: function with shared variable ");
     number g_num = 7;
     show(doubleIt());   // 14
     g_num = 4;
     show(doubleIt());   // 8
 
-    // ════════════════════════════════════════════════════
+    
     // TEST 16: factorial via repeat inside function
-    // ════════════════════════════════════════════════════
-    show("=== TEST 16: factorial function ===");
+    
+    show(" TEST 16: factorial function ");
     g_num = 5;
     show(factorial());  // 120
     g_num = 6;
     show(factorial());  // 720
 
-    // ════════════════════════════════════════════════════
+    
     // TEST 17: Prime checker function
-    // ════════════════════════════════════════════════════
-    show("=== TEST 17: prime checker ===");
+    
+    show(" TEST 17: prime checker ");
     g_num = 7;
     show(isPrime());    // 1 (7 is prime)
     g_num = 9;
@@ -261,10 +248,10 @@ start
     g_num = 13;
     show(isPrime());    // 1
 
-    // ════════════════════════════════════════════════════
+    
     // TEST 18: Nested when inside loop
-    // ════════════════════════════════════════════════════
-    show("=== TEST 18: nested when inside loop ===");
+    
+    show(" TEST 18: nested when inside loop ");
     loop (number nn = 1; nn <= 10; nn = nn + 1) start
         // even check: n == (n/2)*2
         when (nn == nn / 2 * 2) start
@@ -272,36 +259,35 @@ start
         finish
     finish
 
-    // ════════════════════════════════════════════════════
     // TEST 19: Uninitialized variable defaults to 0
-    // ════════════════════════════════════════════════════
-    show("=== TEST 19: uninitialized variable = 0 ===");
+    
+    show(" TEST 19: uninitialized variable = 0 ");
     number uninit;
     show(uninit);       // 0
 
-    // ════════════════════════════════════════════════════
+    
     // TEST 20: Negative numbers (UMINUS)
-    // ════════════════════════════════════════════════════
-    show("=== TEST 20: negative numbers ===");
+    
+    show(" TEST 20: negative numbers ");
     number neg = -5;
     show(neg);          // -5
     show(neg * -1);     // 5
     show(-10 + 3);      // -7
 
-    // ════════════════════════════════════════════════════
+    
     // TEST 21: Operator precedence
-    // ════════════════════════════════════════════════════
+    
     show("=== TEST 21: expression precedence ===");
     show(2 + 3 * 4);        // 14
     show((2 + 3) * 4);      // 20
     show(10 - 2 * 3 + 1);   // 5
     show(10 / 2 + 3);       // 8
 
-    // ════════════════════════════════════════════════════
+    
     // TEST 22: msin, mcos, mtan  (arguments in radians)
     //   sin(0) = 0,  cos(0) = 1,  tan(0) = 0
     //   sin(pi/2) ≈ 1
-    // ════════════════════════════════════════════════════
+    
     show("=== TEST 22: trig functions (radians) ===");
     show(msin(0));          // 0
     show(mcos(0));          // 1
@@ -310,9 +296,9 @@ start
     show(msin(halfpi));     // ~1  (prints 1)
     show(mcos(halfpi));     // ~0  (prints a tiny float)
 
-    // ════════════════════════════════════════════════════
+   
     // TEST 23: msqrt
-    // ════════════════════════════════════════════════════
+    
     show("=== TEST 23: msqrt ===");
     show(msqrt(0));         // 0
     show(msqrt(1));         // 1
@@ -320,18 +306,18 @@ start
     show(msqrt(9));         // 3
     show(msqrt(2));         // 1.41421
 
-    // ════════════════════════════════════════════════════
+    
     // TEST 24: mlog (base 10)
-    // ════════════════════════════════════════════════════
+    
     show("=== TEST 24: mlog (base 10) ===");
     show(mlog(1));          // 0
     show(mlog(10));         // 1
     show(mlog(100));        // 2
     show(mlog(1000));       // 3
 
-    // ════════════════════════════════════════════════════
+    
     // TEST 25: mpow(base, exp)
-    // ════════════════════════════════════════════════════
+    
     show("=== TEST 25: mpow ===");
     show(mpow(2, 0));       // 1
     show(mpow(2, 1));       // 2
@@ -340,9 +326,9 @@ start
     show(mpow(5, 3));       // 125
     show(mpow(2, -1));      // 0.5
 
-    // ════════════════════════════════════════════════════
+    
     // TEST 26: Math functions in complex expressions
-    // ════════════════════════════════════════════════════
+    
     show("=== TEST 26: math in expressions ===");
     // Pythagorean: sqrt(3^2 + 4^2) = 5
     show(msqrt(mpow(3, 2) + mpow(4, 2)));   // 5
@@ -351,18 +337,18 @@ start
     // 2^msqrt(4) = 2^2 = 4
     show(mpow(2, msqrt(4)));                 // 4
 
-    // ════════════════════════════════════════════════════
+    
     // TEST 27: Math edge cases
-    // ════════════════════════════════════════════════════
+    
     show("=== TEST 27: math edge cases ===");
     show(msqrt(0));         // 0  (boundary)
     show(mpow(0, 0));       // 1  (by C convention)
     show(mlog(1));          // 0  (log10(1)=0)
     show(mpow(1, 999));     // 1  (1^anything = 1)
 
-    // ════════════════════════════════════════════════════
+    
     // TEST 28: Array with loop – mixed writes and reads
-    // ════════════════════════════════════════════════════
+    
     show("=== TEST 28: array sum via loop ===");
     number sums[5];
     loop (number si = 0; si < 5; si = si + 1) start
@@ -374,9 +360,9 @@ start
     finish
     show(total);            // 30  (0+1+4+9+16)
 
-    // ════════════════════════════════════════════════════
+    
     // TEST 29: stop inside nested loops (break outer)
-    // ════════════════════════════════════════════════════
+    
     show("=== TEST 29: stop in nested loop ===");
     number found = 0;
     loop (number oi = 0; oi < 5; oi = oi + 1) start
@@ -392,16 +378,16 @@ start
     finish
     show(found);            // 12  (oi=1, ii=2 -> 1*10+2)
 
-    // ════════════════════════════════════════════════════
+    
     // TEST 30: String output
-    // ════════════════════════════════════════════════════
+    
     show("=== TEST 30: string literals ===");
     show("Hello, M++ World!");
     show("All tests passed!");
 
-    // ════════════════════════════════════════════════════
+    
     // TEST 31: Stack — basic operations
-    // ════════════════════════════════════════════════════
+    
     show("=== TEST 31: stack basic operations ===");
 
     stack st;
@@ -440,9 +426,9 @@ start
     spop st;
     show(sisempty st);      // 1  (empty again)
 
-    // ════════════════════════════════════════════════════
+    
     // TEST 32: Stack — LIFO order (reverse sequence)
-    // ════════════════════════════════════════════════════
+    
     show("=== TEST 32: stack LIFO / reverse ===");
 
     stack rev;
@@ -456,9 +442,9 @@ start
         show(rv);           // 5  4  3  2  1
     finish
 
-    // ════════════════════════════════════════════════════
+    
     // TEST 33: Stack — spop used in expression
-    // ════════════════════════════════════════════════════
+    
     show("=== TEST 33: stack spop in expression ===");
 
     stack exps;
@@ -471,9 +457,9 @@ start
 
     show(sisempty exps);    // 1
 
-    // ════════════════════════════════════════════════════
+ 
     // TEST 34: Stack — conditional with sisempty / speek
-    // ════════════════════════════════════════════════════
+    
     show("=== TEST 34: stack in conditions ===");
 
     stack conds;
@@ -493,9 +479,9 @@ start
         show("stack is empty");     // stack is empty
     finish
 
-    // ════════════════════════════════════════════════════
+   
     // TEST 35: Queue — basic operations
-    // ════════════════════════════════════════════════════
+    
     show("=== TEST 35: queue basic operations ===");
 
     queue qu;
@@ -534,9 +520,9 @@ start
     qdequeue qu;
     show(qisempty qu);      // 1  (empty again)
 
-    // ════════════════════════════════════════════════════
+   
     // TEST 36: Queue — FIFO order
-    // ════════════════════════════════════════════════════
+    
     show("=== TEST 36: queue FIFO order ===");
 
     queue fifo;
@@ -550,9 +536,9 @@ start
         show(fv);           // 1  2  3  4  5
     finish
 
-    // ════════════════════════════════════════════════════
+    
     // TEST 37: Queue — qdequeue used in expression
-    // ════════════════════════════════════════════════════
+    
     show("=== TEST 37: queue qdequeue in expression ===");
 
     queue expq;
@@ -565,9 +551,9 @@ start
 
     show(qisempty expq);    // 1
 
-    // ════════════════════════════════════════════════════
+    
     // TEST 38: Queue — conditional with qisempty / qpeek
-    // ════════════════════════════════════════════════════
+    
     show("=== TEST 38: queue in conditions ===");
 
     queue condq;
@@ -587,12 +573,12 @@ start
         show("queue is empty");     // queue is empty
     finish
 
-    // ════════════════════════════════════════════════════
+    
     // TEST 39: Stack and Queue together — transfer elements
     //   Push 1..5 onto a stack, then pop into a queue.
     //   Stack reverses; queue then outputs in that reversed
     //   order, giving 5 4 3 2 1 from the queue.
-    // ════════════════════════════════════════════════════
+   
     show("=== TEST 39: stack-to-queue transfer ===");
 
     stack src;
@@ -614,10 +600,7 @@ start
         show(out);          // 5  4  3  2  1
     finish
 
-    // ════════════════════════════════════════════════════
-    // TEST 40: Stack — ssize and speek in expressions
-    // ════════════════════════════════════════════════════
-    show("=== TEST 40: ssize and speek in expressions ===");
+    show(" TEST 40: ssize and speek in expressions ");
 
     stack calc;
     spush calc 4;
@@ -638,9 +621,9 @@ start
     spop calc;
     show(ssize calc);           // 0
 
-    // ════════════════════════════════════════════════════
+    
     // TEST 41: Queue — qsize and qpeek in expressions
-    // ════════════════════════════════════════════════════
+
     show("=== TEST 41: qsize and qpeek in expressions ===");
 
     queue qcalc;
